@@ -7,7 +7,7 @@ export default function SignIn() {
     <form
       action={async () => {
         "use server";
-        await signIn("google", { redirect: true, redirectTo: "/" });
+        await signIn("google", { redirect: true, redirectTo: "/dashboard" });
       }}
     >
       <Button type="submit" variant={"outline"}>
