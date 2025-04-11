@@ -1,0 +1,32 @@
+{
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.eol": "\n",
+  "github.copilot.advanced": {
+    "inlineSuggest.enabled": true,
+    "inlineSuggest.showSuggestionsOnlyOnTrigger": true,
+    "inlineSuggest.suppressSuggestions": false,
+    "inlineSuggest.showOnTriggerChar": true,
+    "inlineSuggest.completionDelay": 0
+  },
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Generate a commit message for the following code changes."
+    },
+    {
+      "text": "Use imperative mood."
+    },
+    {
+      "text": "Be concise and clear."
+    },
+    {
+      "text": "Use conventional commit message format."
+    },
+    {
+      "text": "Use scope if applicable."
+    }
+  ]
+}
