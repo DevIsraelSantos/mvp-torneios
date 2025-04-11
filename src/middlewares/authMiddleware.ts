@@ -5,13 +5,13 @@ import { NextResponse } from "next/server";
 import { CustomMiddleware } from "./chain";
 
 const REDIRECT_ROUTES = {
-  REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE: "/home",
+  REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE: "/auth",
   REDIRECT_TO_FISRT_PAGE: "/",
 } as const;
 
 const publicRoutes = [
   { path: "/home", whenAuthenticated: "next" },
-  { path: "/login", whenAuthenticated: "redirect" },
+  { path: "/auth", whenAuthenticated: "redirect" },
 ] as const;
 
 export function withAuthMiddleware(

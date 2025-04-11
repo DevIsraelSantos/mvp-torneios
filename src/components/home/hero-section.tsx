@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import animalsJpg from "@/public/assets/animals.jpg";
+import bannerImg from "@/public/assets/banner.jpg";
 import Container from "./container";
 
 const DEFAULT_TIME = 10;
@@ -45,9 +45,9 @@ export default function HeroSection({ id }: { id: string }) {
       }, 1000);
 
       const timeout = setTimeout(() => {
-        router.push(
-          "https://dev-israelsantos.notion.site/1ab17f0d5d238057bac4f2b90e96674b?pvs=105"
-        );
+        // router.push(
+        //   "https://dev-israelsantos.notion.site/1ab17f0d5d238057bac4f2b90e96674b?pvs=105"
+        // );
       }, DEFAULT_TIME * 1000);
 
       return () => {
@@ -149,7 +149,7 @@ export default function HeroSection({ id }: { id: string }) {
             <Image
               width={500}
               height={500}
-              src={animalsJpg}
+              src={bannerImg}
               alt={"Dashboard de uma plataforma de engajamento"}
               className="rounded-xl object-cover"
             />

@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Engaja Prêmios",
-  description: "Conquistando engajamento e resgatando motivação",
+  title: "Torneios - Sistema de Gerenciamento de Torneios de Vôlei",
+  description: "Gerencie seus torneios de vôlei de forma simples e eficiente",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
         <ThemeProvider
           storageKey="theme"
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
           value={{ light: "light", dark: "dark" }}
