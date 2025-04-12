@@ -160,11 +160,6 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Torneio de Verão 2023</h1>
-        <p className="text-muted-foreground">Gerenciamento de rodadas</p>
-      </div>
-
       <TournamentTabs id={params.id} activeTab="rounds" />
 
       <div className="flex justify-between items-center my-6">
