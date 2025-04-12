@@ -1,9 +1,10 @@
 "use client";
+import Page from "@/components/page";
 import { Loader2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useEffect } from "react";
 
-export default function Page() {
+export default function PageLogout() {
   useEffect(() => {
     const timer = setTimeout(() => {
       signOut({ callbackUrl: "/home" });
@@ -13,9 +14,11 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="bg-background h-screen flex flex-col justify-center items-center">
-      <Loader2 className="animate-spin text-6xl mb-4" />
-      <h1 className="animate-bounce text-2xl">Saindo...</h1>
-    </div>
+    <Page>
+      <div className="bg-background h-screen flex flex-col justify-center items-center">
+        <Loader2 className="animate-spin text-6xl mb-4" />
+        <h1 className="animate-bounce text-2xl">Saindo...</h1>
+      </div>
+    </Page>
   );
 }

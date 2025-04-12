@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import Page from "@/components/page";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -20,17 +19,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Meus Torneios</h1>
-        <Link href="/tournaments/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Criar Novo Torneio
-          </Button>
-        </Link>
-      </div>
-
+    <Page>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tournaments.map((tournament) => (
           <Link href={`/tournaments/${tournament.id}`} key={tournament.id}>
@@ -59,6 +48,6 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
-    </div>
+    </Page>
   );
 }

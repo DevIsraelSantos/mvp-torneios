@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { InfoIcon, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Page from "@/components/page";
 
 export default function NewTournamentPage() {
   const router = useRouter();
@@ -61,14 +62,7 @@ export default function NewTournamentPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Criar Novo Torneio</h1>
-        <p className="text-muted-foreground">
-          Preencha os dados para criar um novo torneio
-        </p>
-      </div>
-
+    <Page>
       <form onSubmit={handleSubmit}>
         <Card>
           <CardContent className="pt-6">
@@ -309,6 +303,6 @@ export default function NewTournamentPage() {
           </CardContent>
         </Card>
       </form>
-    </div>
+    </Page>
   );
 }

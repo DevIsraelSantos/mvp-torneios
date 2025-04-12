@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 export default function Header({ session }: { session: Session | null }) {
   const path = usePathname();
   const isDashboard = path === "/dashboard";
+  const isNewTournament = path === "/tournaments/new";
 
   function NewTournamentButton() {
     return (
@@ -46,7 +47,11 @@ export default function Header({ session }: { session: Session | null }) {
     <header className="flex justify-between items-center border-b pb-2">
       <Link href="/dashboard">
         <h1 className="text-2xl font-bold">
-          {isDashboard ? "Meus torneios" : "Torneio"}
+          {isDashboard
+            ? "Meus torneios"
+            : isNewTournament
+            ? "Configurando novo Torneio"
+            : "Gerenciar Torneio"}
         </h1>
       </Link>
 
