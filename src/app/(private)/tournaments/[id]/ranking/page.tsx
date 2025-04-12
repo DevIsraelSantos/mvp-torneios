@@ -1,7 +1,13 @@
-import { DashboardHeader } from "@/components/dashboard-header"
-import { TournamentTabs } from "@/components/tournament-tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { TournamentTabs } from "@/components/tournament-tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function RankingPage({ params }: { params: { id: string } }) {
   // Mock data for rankings
@@ -58,12 +64,10 @@ export default function RankingPage({ params }: { params: { id: string } }) {
       pointsConceded: 355,
       pointsAverage: "44.1%",
     },
-  ]
+  ];
 
   return (
     <div className="container mx-auto py-6">
-      <DashboardHeader />
-
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Torneio de Verão 2023</h1>
         <p className="text-muted-foreground">Classificação</p>
@@ -133,5 +137,5 @@ export default function RankingPage({ params }: { params: { id: string } }) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

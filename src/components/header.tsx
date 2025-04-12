@@ -1,96 +1,94 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import React from "react";
-
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "./ui/breadcrumb";
-import { Separator } from "./ui/separator";
-import { SidebarTrigger } from "./ui/sidebar";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, LogOut, Plus } from "lucide-react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
-// TODO - refactor this with multiples pages
-const PageNames = [
-  {
-    name: "dashboard",
-    label: "Dashboard",
-    link: "/dashboard",
-  },
-  {
-    name: "admin",
-    label: "Dashboard",
-    link: "/dashboard",
-  },
-  {
-    name: "submissions",
-    label: "Conquistas",
-    link: "/admin/submissions",
-  },
-  {
-    name: "missions",
-    label: "Missões",
-    link: "/missions",
-  },
-  {
-    name: "my-submissions",
-    label: "Submissões",
-    link: "/missions/my-submissions",
-  },
-  {
-    name: "users",
-    label: "Usuários",
-    link: "/admin/users",
-  },
-] as const;
+export default function Header({ session }: { session: Session | null }) {
+  const path = usePathname();
+  const isDashboard = path === "/dashboard";
 
-export default function Header() {
-  const pathname = usePathname();
+  function NewTournamentButton() {
+    return (
+      <Link href="/tournaments/new">
+        <Button size="sm" className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Criar Novo Torneio
+        </Button>
+      </Link>
+    );
+  }
 
-  const items = pathname.split("/").slice(1);
+  function GoBackButton() {
+    return (
+      <Link href="/dashboard">
+        <Button size="sm" className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
+      </Link>
+    );
+  }
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator
-          orientation="vertical"
-          className="mr-2 data-[orientation=vertical]:h-4"
-        />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {items.map((path, index) => {
-              const pageItem = PageNames.find((page) => page.name === path);
+    <header className="flex justify-between items-center border-b pb-2">
+      <Link href="/dashboard">
+        <h1 className="text-2xl font-bold">
+          {isDashboard ? "Meus torneios" : "Torneio"}
+        </h1>
+      </Link>
 
-              if (!pageItem) return null;
-
-              if (index < items.length - 1) {
-                return (
-                  <React.Fragment key={index}>
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href={pageItem.link}>
-                        {pageItem.label}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                  </React.Fragment>
-                );
+      <div className="flex items -center gap-4 justify-end">
+        {isDashboard && <NewTournamentButton />}
+        {!isDashboard && <GoBackButton />}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={session?.user?.image || ""} alt="@user" />
+                <AvatarFallback>
+                  {session?.user?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {session?.user.name}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {session?.user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() =>
+                signOut({
+                  redirect: true,
+                  callbackUrl: "/home",
+                })
               }
-
-              return (
-                <React.Fragment key={index}>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>{pageItem.label}</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </React.Fragment>
-              );
-            })}
-          </BreadcrumbList>
-        </Breadcrumb>
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

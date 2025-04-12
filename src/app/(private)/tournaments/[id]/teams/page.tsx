@@ -1,13 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Plus, Trash2, Users } from "lucide-react"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { TournamentTabs } from "@/components/tournament-tabs"
+import { TournamentTabs } from "@/components/tournament-tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Plus, Trash2, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function TeamsPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
+  const router = useRouter();
   const [teams, setTeams] = useState([
     {
       id: 1,
@@ -34,40 +33,42 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
       name: "Time B",
       players: ["Ana Costa", "Carlos Ferreira", "Lúcia Pereira"],
     },
-  ])
+  ]);
 
-  const [newTeam, setNewTeam] = useState({ name: "", players: [""] })
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [newTeam, setNewTeam] = useState({ name: "", players: [""] });
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleAddPlayer = () => {
     setNewTeam({
       ...newTeam,
       players: [...newTeam.players, ""],
-    })
-  }
+    });
+  };
 
   const handleRemovePlayer = (index: number) => {
     setNewTeam({
       ...newTeam,
       players: newTeam.players.filter((_, i) => i !== index),
-    })
-  }
+    });
+  };
 
   const handlePlayerChange = (index: number, value: string) => {
-    const updatedPlayers = [...newTeam.players]
-    updatedPlayers[index] = value
+    const updatedPlayers = [...newTeam.players];
+    updatedPlayers[index] = value;
     setNewTeam({
       ...newTeam,
       players: updatedPlayers,
-    })
-  }
+    });
+  };
 
   const handleSubmit = () => {
     // Filter out empty player names
-    const filteredPlayers = newTeam.players.filter((name) => name.trim() !== "")
+    const filteredPlayers = newTeam.players.filter(
+      (name) => name.trim() !== ""
+    );
 
     if (newTeam.name.trim() === "" || filteredPlayers.length === 0) {
-      return // Don't add empty teams
+      return; // Don't add empty teams
     }
 
     setTeams([
@@ -77,26 +78,26 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
         name: newTeam.name,
         players: filteredPlayers,
       },
-    ])
+    ]);
 
     // Reset form
-    setNewTeam({ name: "", players: [""] })
-    setDialogOpen(false)
-  }
+    setNewTeam({ name: "", players: [""] });
+    setDialogOpen(false);
+  };
 
   const handleGenerateSchedule = () => {
     if (teams.length < 2) {
-      alert("É necessário ter pelo menos 2 times para gerar a tabela de jogos.")
-      return
+      alert(
+        "É necessário ter pelo menos 2 times para gerar a tabela de jogos."
+      );
+      return;
     }
 
-    router.push(`/tournaments/${params.id}/rounds`)
-  }
+    router.push(`/tournaments/${params.id}/rounds`);
+  };
 
   return (
     <div className="container mx-auto py-6">
-      <DashboardHeader />
-
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Torneio de Verão 2023</h1>
         <p className="text-muted-foreground">Gerenciamento de times</p>
@@ -117,7 +118,9 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Time</DialogTitle>
-                <DialogDescription>Preencha os dados do time e seus jogadores</DialogDescription>
+                <DialogDescription>
+                  Preencha os dados do time e seus jogadores
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
@@ -126,7 +129,9 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
                   <Input
                     id="team-name"
                     value={newTeam.name}
-                    onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
+                    onChange={(e) =>
+                      setNewTeam({ ...newTeam, name: e.target.value })
+                    }
                     placeholder="Ex: Time A"
                   />
                 </div>
@@ -137,7 +142,9 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
                     <div key={index} className="flex items-center gap-2">
                       <Input
                         value={player}
-                        onChange={(e) => handlePlayerChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handlePlayerChange(index, e.target.value)
+                        }
                         placeholder={`Jogador ${index + 1}`}
                         className="flex-1"
                       />
@@ -152,7 +159,13 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
                       </Button>
                     </div>
                   ))}
-                  <Button type="button" variant="outline" size="sm" onClick={handleAddPlayer} className="mt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddPlayer}
+                    className="mt-2"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Adicionar Jogador
                   </Button>
@@ -201,5 +214,5 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
         ))}
       </div>
     </div>
-  )
+  );
 }

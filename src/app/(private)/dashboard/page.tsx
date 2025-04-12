@@ -1,9 +1,15 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Plus } from "lucide-react"
-import Link from "next/link"
-import { DashboardHeader } from "@/components/dashboard-header"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   // Mock data for tournaments
@@ -11,12 +17,10 @@ export default function DashboardPage() {
     { id: 1, name: "Torneio de Verão 2023", status: "active" },
     { id: 2, name: "Copa Regional", status: "active" },
     { id: 3, name: "Campeonato Municipal", status: "finished" },
-  ]
+  ];
 
   return (
     <div className="container mx-auto py-6">
-      <DashboardHeader />
-
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Meus Torneios</h1>
         <Link href="/tournaments/new">
@@ -34,19 +38,27 @@ export default function DashboardPage() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">{tournament.name}</CardTitle>
-                  <Badge variant={tournament.status === "active" ? "default" : "secondary"}>
+                  <Badge
+                    variant={
+                      tournament.status === "active" ? "default" : "secondary"
+                    }
+                  >
                     {tournament.status === "active" ? "Ativo" : "Encerrado"}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription>Clique para gerenciar este torneio</CardDescription>
+                <CardDescription>
+                  Clique para gerenciar este torneio
+                </CardDescription>
               </CardContent>
-              <CardFooter className="text-sm text-muted-foreground">Criado em 01/01/2023</CardFooter>
+              <CardFooter className="text-sm text-muted-foreground">
+                Criado em 01/01/2023
+              </CardFooter>
             </Card>
           </Link>
         ))}
       </div>
     </div>
-  )
+  );
 }

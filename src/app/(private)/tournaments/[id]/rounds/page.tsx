@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { AlertCircle, CheckCircle, Clock, Play, X } from "lucide-react"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { TournamentTabs } from "@/components/tournament-tabs"
+import { TournamentTabs } from "@/components/tournament-tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,24 +18,44 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertCircle, CheckCircle, Clock, Play, X } from "lucide-react";
+import { useState } from "react";
 
 export default function RoundsPage({ params }: { params: { id: string } }) {
-  const [currentRound, setCurrentRound] = useState("1")
-  const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false)
-  const [woDialogOpen, setWoDialogOpen] = useState(false)
-  const [selectedGame, setSelectedGame] = useState<any>(null)
+  const [currentRound, setCurrentRound] = useState("1");
+  const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
+  const [woDialogOpen, setWoDialogOpen] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   // Mock data for rounds
   const rounds = {
     "1": [
-      { id: 1, teamA: "Time A", teamB: "Time B", court: "Quadra 1", status: "waiting" },
-      { id: 2, teamA: "Time C", teamB: "Time D", court: "Quadra 2", status: "in_progress" },
+      {
+        id: 1,
+        teamA: "Time A",
+        teamB: "Time B",
+        court: "Quadra 1",
+        status: "waiting",
+      },
+      {
+        id: 2,
+        teamA: "Time C",
+        teamB: "Time D",
+        court: "Quadra 2",
+        status: "in_progress",
+      },
     ],
     "2": [
       {
@@ -58,7 +81,7 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
         reason: "Time D não compareceu",
       },
     ],
-  }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -67,72 +90,76 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
           <Badge variant="outline" className="flex items-center gap-1">
             <Clock className="h-3 w-3" /> Aguardando
           </Badge>
-        )
+        );
       case "in_progress":
         return (
-          <Badge variant="default" className="flex items-center gap-1 bg-amber-500">
+          <Badge
+            variant="default"
+            className="flex items-center gap-1 bg-amber-500"
+          >
             <Play className="h-3 w-3" /> Em andamento
           </Badge>
-        )
+        );
       case "finished":
         return (
-          <Badge variant="default" className="flex items-center gap-1 bg-green-500">
+          <Badge
+            variant="default"
+            className="flex items-center gap-1 bg-green-500"
+          >
             <CheckCircle className="h-3 w-3" /> Finalizado
           </Badge>
-        )
+        );
       case "wo":
         return (
           <Badge variant="destructive" className="flex items-center gap-1">
             <X className="h-3 w-3" /> WO
           </Badge>
-        )
+        );
       case "oo":
         return (
           <Badge variant="destructive" className="flex items-center gap-1">
             <AlertCircle className="h-3 w-3" /> OO
           </Badge>
-        )
+        );
       default:
-        return <Badge variant="outline">Desconhecido</Badge>
+        return <Badge variant="outline">Desconhecido</Badge>;
     }
-  }
+  };
 
   const handleStartGame = (game: any) => {
     // Logic to start a game
-    console.log("Starting game", game)
-  }
+    console.log("Starting game", game);
+  };
 
   const handleFinishGame = (game: any) => {
-    setSelectedGame(game)
-    setFinishGameDialogOpen(true)
-  }
+    setSelectedGame(game);
+    setFinishGameDialogOpen(true);
+  };
 
   const handleWoOo = (game: any) => {
-    setSelectedGame(game)
-    setWoDialogOpen(true)
-  }
+    setSelectedGame(game);
+    setWoDialogOpen(true);
+  };
 
   const handleSubmitScore = () => {
     // Logic to submit score
-    console.log("Submitting score for game", selectedGame)
-    setFinishGameDialogOpen(false)
-  }
+    console.log("Submitting score for game", selectedGame);
+    setFinishGameDialogOpen(false);
+  };
 
   const handleSubmitWoOo = () => {
     // Logic to submit WO/OO
-    console.log("Submitting WO/OO for game", selectedGame)
-    setWoDialogOpen(false)
-  }
+    console.log("Submitting WO/OO for game", selectedGame);
+    setWoDialogOpen(false);
+  };
 
   const handleStartNextRound = () => {
     // Logic to start next round
-    console.log("Starting next round")
-  }
+    console.log("Starting next round");
+  };
 
   return (
     <div className="container mx-auto py-6">
-      <DashboardHeader />
-
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Torneio de Verão 2023</h1>
         <p className="text-muted-foreground">Gerenciamento de rodadas</p>
@@ -180,7 +207,10 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
               {game.status === "finished" && (
                 <div className="mt-2 space-y-1">
                   {game.score.map((set: number[], index: number) => (
-                    <div key={index} className="flex justify-center gap-2 text-sm">
+                    <div
+                      key={index}
+                      className="flex justify-center gap-2 text-sm"
+                    >
                       <span>Set {index + 1}:</span>
                       <span className="font-medium">
                         {set[0]} - {set[1]}
@@ -197,7 +227,9 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              <div className="mt-4 text-sm text-muted-foreground text-center">{game.court}</div>
+              <div className="mt-4 text-sm text-muted-foreground text-center">
+                {game.court}
+              </div>
             </CardContent>
             <CardFooter className="flex justify-center gap-2 pt-0">
               {game.status === "waiting" && (
@@ -205,7 +237,11 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                   <Button size="sm" onClick={() => handleStartGame(game)}>
                     Iniciar Jogo
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleWoOo(game)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleWoOo(game)}
+                  >
                     Não Jogado
                   </Button>
                 </>
@@ -217,7 +253,9 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                 </Button>
               )}
 
-              {(game.status === "finished" || game.status === "wo" || game.status === "oo") && (
+              {(game.status === "finished" ||
+                game.status === "wo" ||
+                game.status === "oo") && (
                 <Button size="sm" variant="outline">
                   Reabrir Jogo
                 </Button>
@@ -228,11 +266,16 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Finish Game Dialog */}
-      <Dialog open={finishGameDialogOpen} onOpenChange={setFinishGameDialogOpen}>
+      <Dialog
+        open={finishGameDialogOpen}
+        onOpenChange={setFinishGameDialogOpen}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Finalizar Jogo</DialogTitle>
-            <DialogDescription>Registre o placar final do jogo</DialogDescription>
+            <DialogDescription>
+              Registre o placar final do jogo
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -250,7 +293,12 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
               <div key={set} className="grid grid-cols-3 gap-4 items-center">
                 <div className="space-y-2">
                   <Label htmlFor={`set-${set}-team-a`}>Set {set}</Label>
-                  <Input id={`set-${set}-team-a`} type="number" min="0" placeholder="0" />
+                  <Input
+                    id={`set-${set}-team-a`}
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                  />
                 </div>
                 <div className="flex justify-center items-center pt-6">
                   <span>x</span>
@@ -259,7 +307,12 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                   <Label htmlFor={`set-${set}-team-b`} className="sr-only">
                     Set {set} Time B
                   </Label>
-                  <Input id={`set-${set}-team-b`} type="number" min="0" placeholder="0" />
+                  <Input
+                    id={`set-${set}-team-b`}
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                  />
                 </div>
               </div>
             ))}
@@ -268,7 +321,12 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-3 gap-4 items-center">
               <div className="space-y-2">
                 <Label htmlFor="set-4-team-a">Set 4 (Tie-break)</Label>
-                <Input id="set-4-team-a" type="number" min="0" placeholder="0" />
+                <Input
+                  id="set-4-team-a"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                />
               </div>
               <div className="flex justify-center items-center pt-6">
                 <span>x</span>
@@ -277,13 +335,21 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                 <Label htmlFor="set-4-team-b" className="sr-only">
                   Set 4 Time B
                 </Label>
-                <Input id="set-4-team-b" type="number" min="0" placeholder="0" />
+                <Input
+                  id="set-4-team-b"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                />
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFinishGameDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setFinishGameDialogOpen(false)}
+            >
               Cancelar
             </Button>
             <Button onClick={handleSubmitScore}>Confirmar Resultado</Button>
@@ -296,7 +362,9 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Marcar como WO ou OO</DialogTitle>
-            <DialogDescription>Selecione o motivo pelo qual o jogo não foi realizado</DialogDescription>
+            <DialogDescription>
+              Selecione o motivo pelo qual o jogo não foi realizado
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -326,18 +394,22 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
               <AlertTitle>O que é WO e OO?</AlertTitle>
               <AlertDescription>
                 <p>
-                  <strong>WO (Walkover)</strong>: Quando um time não comparece ao jogo.
+                  <strong>WO (Walkover)</strong>: Quando um time não comparece
+                  ao jogo.
                 </p>
                 <p>
-                  <strong>OO (Ocorrência Organizacional)</strong>: Quando um jogo não ocorre por motivos
-                  organizacionais.
+                  <strong>OO (Ocorrência Organizacional)</strong>: Quando um
+                  jogo não ocorre por motivos organizacionais.
                 </p>
               </AlertDescription>
             </Alert>
 
             <div className="space-y-2">
               <Label htmlFor="reason">Motivo</Label>
-              <Textarea id="reason" placeholder="Descreva o motivo pelo qual o jogo não foi realizado" />
+              <Textarea
+                id="reason"
+                placeholder="Descreva o motivo pelo qual o jogo não foi realizado"
+              />
             </div>
 
             <div className="space-y-2">
@@ -347,8 +419,12 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
                   <SelectValue placeholder="Selecione o time vencedor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={selectedGame?.teamA}>{selectedGame?.teamA}</SelectItem>
-                  <SelectItem value={selectedGame?.teamB}>{selectedGame?.teamB}</SelectItem>
+                  <SelectItem value={selectedGame?.teamA}>
+                    {selectedGame?.teamA}
+                  </SelectItem>
+                  <SelectItem value={selectedGame?.teamB}>
+                    {selectedGame?.teamB}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -363,5 +439,5 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

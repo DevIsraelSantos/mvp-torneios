@@ -1,12 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, Calendar, CrownIcon as Court, MapPin, Trophy, Users } from "lucide-react"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { TournamentTabs } from "@/components/tournament-tabs"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertTriangle,
+  Calendar,
+  CrownIcon as Court,
+  MapPin,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { TournamentTabs } from "@/components/tournament-tabs";
 import {
   Dialog,
   DialogContent,
@@ -15,13 +21,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from "next/navigation";
 
-export default function TournamentDetailsPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const [confirmEndDialogOpen, setConfirmEndDialogOpen] = useState(false)
+export default function TournamentDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const router = useRouter();
+  const [confirmEndDialogOpen, setConfirmEndDialogOpen] = useState(false);
 
   // Mock tournament data
   const tournament = {
@@ -42,31 +52,34 @@ export default function TournamentDetailsPage({ params }: { params: { id: string
     hasFinal: true,
     finalFormat: "single",
     courtsList: ["Quadra 1", "Quadra 2"],
-  }
+  };
 
   const handleEndTournament = () => {
     // Logic to end tournament
-    console.log("Ending tournament", tournament.id)
-    setConfirmEndDialogOpen(false)
-    router.push("/dashboard")
-  }
+    console.log("Ending tournament", tournament.id);
+    setConfirmEndDialogOpen(false);
+    router.push("/dashboard");
+  };
 
   return (
     <div className="container mx-auto py-6">
-      <DashboardHeader />
-
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">{tournament.name}</h1>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant={tournament.status === "active" ? "default" : "secondary"}>
+            <Badge
+              variant={tournament.status === "active" ? "default" : "secondary"}
+            >
               {tournament.status === "active" ? "Ativo" : "Encerrado"}
             </Badge>
           </div>
         </div>
 
         {tournament.status === "active" && (
-          <Dialog open={confirmEndDialogOpen} onOpenChange={setConfirmEndDialogOpen}>
+          <Dialog
+            open={confirmEndDialogOpen}
+            onOpenChange={setConfirmEndDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button variant="destructive">Encerrar Torneio</Button>
             </DialogTrigger>
@@ -74,18 +87,25 @@ export default function TournamentDetailsPage({ params }: { params: { id: string
               <DialogHeader>
                 <DialogTitle>Encerrar Torneio</DialogTitle>
                 <DialogDescription>
-                  Tem certeza que deseja encerrar este torneio? Esta ação não pode ser desfeita.
+                  Tem certeza que deseja encerrar este torneio? Esta ação não
+                  pode ser desfeita.
                 </DialogDescription>
               </DialogHeader>
 
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Atenção</AlertTitle>
-                <AlertDescription>Após encerrado, todas as telas ficarão em modo somente leitura.</AlertDescription>
+                <AlertDescription>
+                  Após encerrado, todas as telas ficarão em modo somente
+                  leitura.
+                </AlertDescription>
               </Alert>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => setConfirmEndDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmEndDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
                 <Button variant="destructive" onClick={handleEndTournament}>
@@ -115,12 +135,20 @@ export default function TournamentDetailsPage({ params }: { params: { id: string
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium">Tie-break:</dt>
-                <dd>{tournament.tieBreak ? `Sim (${tournament.tieBreakPoints} pontos)` : "Não"}</dd>
+                <dd>
+                  {tournament.tieBreak
+                    ? `Sim (${tournament.tieBreakPoints} pontos)`
+                    : "Não"}
+                </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium">Final:</dt>
                 <dd>
-                  {tournament.hasFinal ? (tournament.finalFormat === "single" ? "Jogo único" : "Melhor de 3") : "Não"}
+                  {tournament.hasFinal
+                    ? tournament.finalFormat === "single"
+                      ? "Jogo único"
+                      : "Melhor de 3"
+                    : "Não"}
                 </dd>
               </div>
             </dl>
@@ -204,5 +232,5 @@ export default function TournamentDetailsPage({ params }: { params: { id: string
         </Card>
       </div>
     </div>
-  )
+  );
 }
