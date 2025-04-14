@@ -54,8 +54,7 @@ export async function createTournamentAction(
 
     const { name, lossPoints, numberOfSets, winPoints, spaces } =
       validatedFields.data;
-    console.log({ formData });
-    console.log({ spaces });
+
     const session = await auth();
     const userId = session?.user?.id;
 
@@ -77,7 +76,7 @@ export async function createTournamentAction(
         message: "🔴 Já existe um torneio com este nome.",
       };
     }
-    console.log({ spaces });
+
     const tournament = await prisma.tournaments.create({
       data: {
         name,
@@ -97,8 +96,7 @@ export async function createTournamentAction(
       success: true,
       message: tournament.id,
     };
-  } catch (error) {
-    console.log("Error creating tournament", error);
+  } catch {
     return {
       success: false,
       message: "Erro ao criar torneio. Por favor, tente novamente.",
@@ -121,6 +119,7 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
     },
     include: {
       spaces: true,
+      teams: true,
     },
   });
 
@@ -130,9 +129,5 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
 
   return {
     ...tournament,
-    spaces: tournament.spaces.map((space) => ({
-      id: space.id,
-      name: space.name,
-    })),
   };
 }

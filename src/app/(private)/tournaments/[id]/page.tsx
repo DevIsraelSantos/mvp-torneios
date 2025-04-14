@@ -107,7 +107,7 @@ export default function TournamentDetailsPage() {
           <CardContent>
             <div className="flex justify-between items-center">
               <span className="font-medium">Total de times:</span>
-              <Badge variant="outline">{"tournament.teams"}</Badge>
+              <Badge variant="outline">{tournament.teams?.length}</Badge>
             </div>
             <div className="mt-4">
               <Button

@@ -1,4 +1,5 @@
 import { Space } from "./space.entity";
+import { Team } from "./team.entity";
 
 export interface Tournament {
   id?: string;
@@ -9,6 +10,7 @@ export interface Tournament {
   lossPoints?: number;
   winPoints?: number;
   spaces?: Space[];
+  teams?: Team[];
 
   createdAt?: Date;
   updatedAt?: Date;
