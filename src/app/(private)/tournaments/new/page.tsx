@@ -32,14 +32,13 @@ export default function NewTournamentPage() {
   const [spaceName, setSpaceName] = useState("");
   const [spaceError, setSpaceError] = useState("");
 
-  console.log({ spaceName });
-
   const [, formAction, isPending] = useActionState(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (state: any, payload: FormData) => {
       spaces.forEach((space) => {
         payload.append("spaces", space.name);
       });
+      console.log({ payload });
 
       const response = await createTournamentAction(state, payload);
 
@@ -89,41 +88,54 @@ export default function NewTournamentPage() {
                 <Input
                   id="name"
                   name="name"
+                  defaultValue={"kljh"}
                   minLength={2}
                   placeholder="Ex: Torneio de Verão sub 15"
                   required
                 />
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="numberOfSets">
-                  Quantidade de sets por jogo
-                </Label>
-                <Select
-                  name="numberOfSets"
-                  defaultValue="1"
-                  onValueChange={(value) => {
-                    const hiddenInput = document.getElementById(
-                      "numberOfSets-hidden"
-                    ) as HTMLInputElement;
-                    if (hiddenInput) hiddenInput.value = value;
-                  }}
-                >
-                  <SelectTrigger id="sets-format">
-                    <SelectValue placeholder="Selecione o formato" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Jogo único</SelectItem>
-                    <SelectItem value="3">Melhor de 3</SelectItem>
-                    <SelectItem value="5">Melhor de 5</SelectItem>
-                  </SelectContent>
-                </Select>
-                <input
-                  type="hidden"
-                  id="numberOfSets-hidden"
-                  name="numberOfSets"
-                  defaultValue="1"
-                />
+              <div className="w-full flex gap-8 justify-start">
+                <div className="grid gap-3">
+                  <Label htmlFor="category">Categoria do torneio</Label>
+                  <Select name="category" defaultValue="ROUND_ROBIN">
+                    <SelectTrigger id="category-format">
+                      <SelectValue placeholder="Selecione o categotia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ROUND_ROBIN">
+                        Todos contra todos
+                      </SelectItem>
+                      {/* 
+                      // TODO: Habilitar para implementar os outros formatos
+                      <SelectItem value="SWISS_SYSTEM">
+                        Eliminatória simples
+                      </SelectItem>
+                      <SelectItem value="KNOCKOUT">
+                        Eliminatória dupla
+                      </SelectItem>
+                      <SelectItem value="DOUBLE_KNOCKOUT">
+                        Sistema Suíço
+                      </SelectItem> 
+                      */}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="numberOfSets">
+                    Quantidade de sets por jogo
+                  </Label>
+                  <Select name="numberOfSets" defaultValue="1">
+                    <SelectTrigger id="sets-format">
+                      <SelectValue placeholder="Selecione o formato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Jogo único</SelectItem>
+                      <SelectItem value="3">Melhor de 3</SelectItem>
+                      <SelectItem value="5">Melhor de 5</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <Separator />

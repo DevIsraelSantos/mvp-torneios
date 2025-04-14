@@ -43,11 +43,20 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+enum TournamentCategories {
+  ROUND_ROBIN // todos contra todos
+  SWISS_SYSTEM // sistema suíço 
+  KNOCKOUT // mata-mata
+  DOUBLE_KNOCKOUT // mata-mata duplo
+}
+
 model Tournaments {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   status       Boolean @default(true) // true = aberto, false = fechado
   numberOfSets Int     @default(1) // número de sets por partida
+
+  category TournamentCategories @default(ROUND_ROBIN) // tipo de torneio
 
   winPoints  Int @default(1)
   lossPoints Int @default(0)

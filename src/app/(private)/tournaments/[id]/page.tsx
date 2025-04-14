@@ -49,6 +49,23 @@ export default function TournamentDetailsPage() {
                   })()}
                 </dd>
               </div>
+              <div className="flex justify-between">
+                <dt className="font-medium">Quantidade de sets:</dt>
+                <dd>
+                  {(() => {
+                    switch (tournament.category) {
+                      case "ROUND_ROBIN":
+                        return "Todos contra todos";
+                      case "KNOCKOUT":
+                        return "Eliminatória simples";
+                      case "DOUBLE_KNOCKOUT":
+                        return "Eliminatória dupla";
+                      case "SWISS_SYSTEM":
+                        return "Sistema Suíço";
+                    }
+                  })()}
+                </dd>
+              </div>
             </dl>
           </CardContent>
         </Card>

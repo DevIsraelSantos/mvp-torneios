@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { TournamentSchema } from "./schema/tournament.schema";
 import { Tournament } from "@/entities/tournament.entity";
+import { TournamentCategories } from "@prisma/client";
 
 export async function fetchTournaments() {
   const session = await auth();
@@ -34,17 +35,20 @@ export async function createTournamentAction(
   message: string;
 }> {
   try {
+    console.log({ formData });
     const validatedFields = TournamentSchema.safeParse({
       name: formData.get("name"),
       lossPoints: Number(formData.get("lossPoints")),
       numberOfSets: Number(formData.get("numberOfSets")),
       winPoints: Number(formData.get("winPoints")),
+      category: formData.get("category") as TournamentCategories,
       spaces: formData.getAll("spaces").map((space) => ({
         name: space.toString(),
       })),
     });
 
     if (!validatedFields.success) {
+      console.log(validatedFields.error.flatten().fieldErrors);
       return {
         success: false,
         errors: validatedFields.error.flatten().fieldErrors,
@@ -52,7 +56,7 @@ export async function createTournamentAction(
       };
     }
 
-    const { name, lossPoints, numberOfSets, winPoints, spaces } =
+    const { name, lossPoints, numberOfSets, winPoints, spaces, category } =
       validatedFields.data;
 
     const session = await auth();
@@ -84,6 +88,7 @@ export async function createTournamentAction(
         numberOfSets,
         winPoints,
         userId,
+        category,
         spaces: {
           createMany: {
             data: spaces,

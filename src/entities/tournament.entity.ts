@@ -1,3 +1,4 @@
+import { TournamentCategories } from "@prisma/client";
 import { Space } from "./space.entity";
 import { Team } from "./team.entity";
 
@@ -5,6 +6,7 @@ export interface Tournament {
   id?: string;
   name?: string;
   numberOfSets?: number;
+  category: TournamentCategories;
   status?: boolean;
 
   lossPoints?: number;

@@ -1,3 +1,4 @@
+import { TournamentCategories } from "@prisma/client";
 import { z } from "zod";
 
 export const TournamentSchema = z.object({
@@ -6,6 +7,7 @@ export const TournamentSchema = z.object({
     .string()
     .min(2, { message: "O título deve ter pelo menos 2 caracteres" }),
   numberOfSets: z.number(),
+  category: z.nativeEnum(TournamentCategories),
   winPoints: z
     .number()
     .min(0, { message: "O valor deve ser maior ou igual a 0" }),
