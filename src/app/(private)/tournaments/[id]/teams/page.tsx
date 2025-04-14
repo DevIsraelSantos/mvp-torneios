@@ -16,8 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Team } from "@/entities/team.entity";
 import { useTournament } from "@/hooks/use-tournament";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Pen, Plus, Search, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,9 +26,9 @@ import { toast } from "sonner";
 export default function TeamsPage() {
   const router = useRouter();
   const { tournament, team } = useTournament();
-
   const [newTeam, setNewTeam] = useState({ name: "", players: [""] });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleAddPlayer = () => {
     setNewTeam({
@@ -78,7 +79,6 @@ export default function TeamsPage() {
 
     toast(`🟢 Time ${newTeam.name} criado`);
 
-    // Reset form
     setNewTeam({ name: "", players: [""] });
     setDialogOpen(false);
   };
@@ -94,12 +94,38 @@ export default function TeamsPage() {
     router.push(`/tournaments/${tournament.id}/rounds`);
   };
 
-  return (
-    <div className="container mx-auto py-6">
-      <TournamentTabs id={tournament.id!} activeTab="teams" />
+  const teamsFiltered: Team[] = tournament.teams.filter(
+    (team) =>
+      team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      team.players.some((player) =>
+        player.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  );
 
-      <div className="flex justify-between items-center my-6">
-        <h2 className="text-2xl font-semibold">Times</h2>
+  return (
+    <div className="container mx-auto py-6 flex flex-col gap-6">
+      <TournamentTabs id={tournament.id!} activeTab="teams" />
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold flex gap-4">
+          Times
+          <div className="items-center gap-2 hidden md:flex">
+            <Input
+              type="text"
+              placeholder="Pesquisar times..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm ? (
+              <Trash2
+                className="cursor-pointer"
+                onClick={() => setSearchTerm("")}
+              />
+            ) : (
+              <Search />
+            )}
+          </div>
+        </h2>
+
         <div className="flex gap-2">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -182,13 +208,36 @@ export default function TeamsPage() {
           </Button>
         </div>
       </div>
-
+      <div className="flex items-center gap-2 md:hidden">
+        <Input
+          type="text"
+          placeholder="Pesquisar times..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm ? (
+          <Trash2
+            className="cursor-pointer"
+            onClick={() => setSearchTerm("")}
+          />
+        ) : (
+          <Search />
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tournament.teams.map((team) => (
+        {teamsFiltered.map((team) => (
           <Card key={team.id}>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
                 <span className="text-2xl font-semibold">{team.name}</span>
+                <div className="flex justify-between gap-2 items-center">
+                  <Button variant={"outline"} size="icon">
+                    <Pen />
+                  </Button>
+                  <Button variant={"destructive"} size="icon">
+                    <Trash2 />
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
