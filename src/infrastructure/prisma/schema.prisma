@@ -59,6 +59,8 @@ model Tournaments {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([name, userId])
 }
 
 model Spaces {
@@ -68,6 +70,8 @@ model Spaces {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tournament   Tournaments? @relation(fields: [tournamentId], references: [id])
+  tournament   Tournaments? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   tournamentId String?      @db.ObjectId
+
+  @@unique([name, tournamentId])
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-
+import { createTournamentAction } from "@/actions/tournament-actions";
 import Page from "@/components/page";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -16,15 +15,44 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { InfoIcon, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { toast } from "sonner";
 
 export default function NewTournamentPage() {
   const router = useRouter();
   const [spaces, setSpaces] = useState([{ id: 1, name: "Quadra 1" }]);
   const [spaceName, setSpaceName] = useState("");
   const [spaceError, setSpaceError] = useState("");
+
+  console.log({ spaceName });
+
+  const [, formAction, isPending] = useActionState(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (state: any, payload: FormData) => {
+      spaces.forEach((space) => {
+        payload.append("spaces", space.name);
+      });
+
+      const response = await createTournamentAction(state, payload);
+
+      if (!response.success) {
+        toast(response.message);
+        return response;
+      }
+      const id = response?.message;
+      router.push(`/tournaments/${id}`);
+      toast("🟢 Torneio criado com sucesso!");
+    },
+    null
+  );
 
   const handleAddSpace = () => {
     if (!spaceName.trim()) {
@@ -50,16 +78,9 @@ export default function NewTournamentPage() {
     setSpaces(spaces.filter((space) => space.id !== id));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would handle the form submission
-    // For now, we'll just redirect to the dashboard
-    router.push("/dashboard");
-  };
-
   return (
     <Page>
-      <form onSubmit={handleSubmit}>
+      <form action={formAction}>
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-6">
@@ -67,14 +88,27 @@ export default function NewTournamentPage() {
                 <Label htmlFor="name">Nome do torneio</Label>
                 <Input
                   id="name"
+                  name="name"
+                  minLength={2}
                   placeholder="Ex: Torneio de Verão sub 15"
                   required
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="sets">Quantidade de sets por jogo</Label>
-                <Select defaultValue="1">
+                <Label htmlFor="numberOfSets">
+                  Quantidade de sets por jogo
+                </Label>
+                <Select
+                  name="numberOfSets"
+                  defaultValue="1"
+                  onValueChange={(value) => {
+                    const hiddenInput = document.getElementById(
+                      "numberOfSets-hidden"
+                    ) as HTMLInputElement;
+                    if (hiddenInput) hiddenInput.value = value;
+                  }}
+                >
                   <SelectTrigger id="sets-format">
                     <SelectValue placeholder="Selecione o formato" />
                   </SelectTrigger>
@@ -84,6 +118,12 @@ export default function NewTournamentPage() {
                     <SelectItem value="5">Melhor de 5</SelectItem>
                   </SelectContent>
                 </Select>
+                <input
+                  type="hidden"
+                  id="numberOfSets-hidden"
+                  name="numberOfSets"
+                  defaultValue="1"
+                />
               </div>
 
               <Separator />
@@ -92,9 +132,10 @@ export default function NewTournamentPage() {
                 <h3 className="text-lg font-medium mb-4">Pontuação</h3>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="grid gap-3">
-                    <Label htmlFor="victory-points">Vitória</Label>
+                    <Label htmlFor="winPoints">Vitória</Label>
                     <Input
-                      id="victory-points"
+                      id="winPoints"
+                      name="winPoints"
                       type="number"
                       min="0"
                       defaultValue="1"
@@ -102,9 +143,10 @@ export default function NewTournamentPage() {
                     />
                   </div>
                   <div className="grid gap-3">
-                    <Label htmlFor="defeat-points">Derrota</Label>
+                    <Label htmlFor="lossScore">Derrota</Label>
                     <Input
-                      id="defeat-points"
+                      id="lossScore"
+                      name="lossScore"
                       type="number"
                       min="0"
                       defaultValue="0"
@@ -176,6 +218,7 @@ export default function NewTournamentPage() {
                       value={spaceName}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
+                          e.preventDefault();
                           handleAddSpace();
                         }
                       }}
@@ -197,10 +240,30 @@ export default function NewTournamentPage() {
                   type="button"
                   variant="outline"
                   onClick={() => router.push("/dashboard")}
+                  disabled={isPending}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">Criar Torneio</Button>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <>
+                        <Button
+                          type="submit"
+                          disabled={isPending || spaceName !== ""}
+                        >
+                          Criar Torneio
+                        </Button>
+                      </>
+                    </TooltipTrigger>
+                    {spaceName !== "" && (
+                      <TooltipContent>
+                        <p>Quadra não foi salva</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </CardContent>
