@@ -9,8 +9,8 @@ export interface Tournament {
 
   lossPoints?: number;
   winPoints?: number;
-  spaces?: Space[];
-  teams?: Team[];
+  spaces: Space[];
+  teams: Team[];
 
   createdAt?: Date;
   updatedAt?: Date;

@@ -1,4 +1,6 @@
 "use client";
+import { createOrUpdateTeamAction } from "@/actions/tournament-actions";
+import { Team } from "@/entities/team.entity";
 import { Tournament } from "@/entities/tournament.entity";
 import { createContext, ReactNode, useContext, useState } from "react";
 
@@ -7,6 +9,11 @@ type TournamentContextType = {
   setTournament: (tournament: Tournament) => void;
   updateTournament: (updates: Partial<Tournament>) => void;
   resetTournament: (id: string) => void;
+  team: {
+    add: (team: { name: string; players: string[] }) => void;
+    update: (id: string, team: { name: string; players: string[] }) => void;
+    remove: (id: string) => void;
+  };
 };
 
 const TournamentContext = createContext<TournamentContextType | undefined>(
@@ -32,9 +39,50 @@ export const TournamentProvider = ({
     setTournament(initialTournament);
   };
 
+  const addTeam = async (team: { name: string; players: string[] }) => {
+    let newTeam: Team = {
+      name: team.name,
+      players: team.players,
+    };
+    const { message: id } = await createOrUpdateTeamAction({
+      ...newTeam,
+      tournamentId: tournament.id!,
+    });
+
+    newTeam = { ...newTeam, id };
+
+    const currentTeams = tournament.teams || [];
+
+    setTournament((prev) => ({
+      ...prev,
+      teams: [newTeam, ...currentTeams],
+    }));
+  };
+
+  const updateTeam = (
+    id: string,
+    team: { name: string; players: string[] }
+  ) => {
+    console.log("updateTeam", id, team);
+  };
+
+  const removeTeam = (id: string) => {
+    console.log("removeTeam", id);
+  };
+
   return (
     <TournamentContext.Provider
-      value={{ tournament, setTournament, updateTournament, resetTournament }}
+      value={{
+        tournament,
+        setTournament,
+        updateTournament,
+        resetTournament,
+        team: {
+          add: addTeam,
+          update: updateTeam,
+          remove: removeTeam,
+        },
+      }}
     >
       {children}
     </TournamentContext.Provider>

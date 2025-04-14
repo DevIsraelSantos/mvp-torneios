@@ -131,3 +131,67 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
     ...tournament,
   };
 }
+
+export async function createOrUpdateTeamAction({
+  name,
+  players,
+  id,
+  tournamentId,
+}: {
+  id?: string;
+  tournamentId: string;
+  name: string;
+  players: string[];
+}): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    if (!id) {
+      const team = await prisma.teams.create({
+        data: {
+          name,
+          players,
+          tournament: {
+            connect: {
+              id: tournamentId,
+            },
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: team.id,
+      };
+    }
+
+    const team = await prisma.teams.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        players,
+      },
+    });
+
+    return {
+      success: true,
+      message: team.id,
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      success: false,
+      message: "Erro ao criar ou atualizar o time.",
+    };
+  }
+}

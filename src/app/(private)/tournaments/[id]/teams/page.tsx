@@ -16,29 +16,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useTournament } from "@/hooks/use-tournament";
 import { Plus, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export default function TeamsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function TeamsPage() {
   const router = useRouter();
-  const [teams, setTeams] = useState([
-    {
-      id: 1,
-      name: "Time A",
-      players: ["João Silva", "Maria Oliveira", "Pedro Santos"],
-    },
-    {
-      id: 2,
-      name: "Time B",
-      players: ["Ana Costa", "Carlos Ferreira", "Lúcia Pereira"],
-    },
-  ]);
+  const { tournament, team } = useTournament();
 
   const [newTeam, setNewTeam] = useState({ name: "", players: [""] });
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -73,17 +59,24 @@ export default function TeamsPage({
     );
 
     if (newTeam.name.trim() === "" || filteredPlayers.length === 0) {
-      return; // Don't add empty teams
+      return;
     }
 
-    setTeams([
-      ...teams,
-      {
-        id: teams.length + 1,
-        name: newTeam.name,
-        players: filteredPlayers,
-      },
-    ]);
+    // Check if team name already exists
+    const teamExists = tournament.teams.some(
+      (team) => team.name === newTeam.name
+    );
+    if (teamExists) {
+      toast(`🔴 Já existe um time chamdo ${newTeam.name}`);
+      return;
+    }
+
+    team.add({
+      name: newTeam.name,
+      players: filteredPlayers,
+    });
+
+    toast(`🟢 Time ${newTeam.name} criado`);
 
     // Reset form
     setNewTeam({ name: "", players: [""] });
@@ -91,19 +84,19 @@ export default function TeamsPage({
   };
 
   const handleGenerateSchedule = () => {
-    if (teams.length < 2) {
+    if (tournament.teams.length < 2) {
       alert(
         "É necessário ter pelo menos 2 times para gerar a tabela de jogos."
       );
       return;
     }
 
-    router.push(`/tournaments/${id}/rounds`);
+    router.push(`/tournaments/${tournament.id}/rounds`);
   };
 
   return (
     <div className="container mx-auto py-6">
-      <TournamentTabs id={id} activeTab="teams" />
+      <TournamentTabs id={tournament.id!} activeTab="teams" />
 
       <div className="flex justify-between items-center my-6">
         <h2 className="text-2xl font-semibold">Times</h2>
@@ -181,25 +174,32 @@ export default function TeamsPage({
             </DialogContent>
           </Dialog>
 
-          <Button onClick={handleGenerateSchedule} disabled={teams.length < 2}>
+          <Button
+            onClick={handleGenerateSchedule}
+            disabled={tournament.teams.length < 2}
+          >
             Gerar Tabela de Jogos
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {teams.map((team) => (
+        {tournament.teams.map((team) => (
           <Card key={team.id}>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
-                <span>{team.name}</span>
-                <Badge>{team.players.length} jogadores</Badge>
+                <span className="text-2xl font-semibold">{team.name}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>Jogadores</span>
+              <div className="flex justify-between gap-2 mb-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>Jogadores</span>
+                </div>
+                <Badge className="justify-self-end">
+                  {team.players.length} jogadores
+                </Badge>
               </div>
               <Separator className="mb-2" />
               <ul className="space-y-1">
