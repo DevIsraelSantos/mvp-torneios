@@ -15,18 +15,15 @@ import {
 } from "./ui/dialog";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTournament } from "@/hooks/use-tournament";
 
-export function TournamentHeader({
-  name,
-  id,
-  status,
-}: {
-  name?: string;
-  id?: string;
-  status?: boolean;
-}) {
+export function TournamentHeader() {
   const router = useRouter();
   const [confirmEndDialogOpen, setConfirmEndDialogOpen] = useState(false);
+
+  const {
+    tournament: { name, id, status },
+  } = useTournament();
 
   const handleEndTournament = () => {
     // Logic to end tournament

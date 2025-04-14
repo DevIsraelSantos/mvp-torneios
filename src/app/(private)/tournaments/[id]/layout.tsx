@@ -1,5 +1,7 @@
+import { getTournamentByIdAction } from "@/actions/tournament-actions";
 import { TournamentHeader } from "@/components/tournament-header";
 import React from "react";
+import { TournamentProvider } from "../../../../hooks/use-tournament";
 
 export default async function PrivateLayout({
   children,
@@ -10,34 +12,14 @@ export default async function PrivateLayout({
 }>) {
   const { id } = await params;
 
-  const tournament = {
-    id: id,
-    name: "Torneio de Verão 2023",
-    status: "active",
-    teams: 4,
-    courts: 2,
-    sets: 3,
-    tieBreak: true,
-    tieBreakPoints: 15,
-    scoring: {
-      victory: 3,
-      defeat: 1,
-      wo: 0,
-      oo: 0,
-    },
-    hasFinal: true,
-    finalFormat: "single",
-    courtsList: ["Quadra 1", "Quadra 2"],
-  };
+  const tournament = await getTournamentByIdAction(id);
 
   return (
     <div>
-      <TournamentHeader
-        id={tournament.id}
-        name={tournament.name}
-        status={tournament.status === "active"}
-      />
-      {children}
+      <TournamentProvider initialTournament={tournament}>
+        <TournamentHeader />
+        {children}
+      </TournamentProvider>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { TournamentSchema } from "./schema/tournament.schema";
+import { Tournament } from "@/entities/tournament.entity";
 
 export async function fetchTournaments() {
   const session = await auth();
@@ -105,49 +106,33 @@ export async function createTournamentAction(
   }
 }
 
-// export async function createOrUpdateMissionAction(
-//   prevState: unknown,
-//   formData: FormData
-// ) {
-//   const validatedFields = MissionSchema.safeParse({
-//     id: formData.get("id"),
-//     name: formData.get("name"),
-//     description: formData.get("description"),
-//     points: formData.get("points"),
-//     status: formData.get("status"),
-//   });
+export async function getTournamentByIdAction(id: string): Promise<Tournament> {
+  const session = await auth();
+  const userId = session?.user?.id;
 
-//   if (!validatedFields.success) {
-//     return {
-//       errors: validatedFields.error.flatten().fieldErrors,
-//       message: "Campos inválidos. Falha ao salvar a missão.",
-//     };
-//   }
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
 
-//   const { id, name, description, points, status } = validatedFields.data;
+  const tournament = await prisma.tournaments.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    include: {
+      spaces: true,
+    },
+  });
 
-//   try {
+  if (!tournament) {
+    throw new Error("Tournament not found");
+  }
 
-// await bff.patch<MissionDto>(`/missions/${id}`, {
-//   name,
-//   description,
-//   points,
-//   isEnable: status === "active",
-// });
-
-//     revalidatePath("/admin/missions");
-//     return { success: true, message: "Missão salva com sucesso!" };
-//   } catch (error: unknown) {
-//     if (error instanceof AxiosError) {
-//       CatchHandler(error);
-//       if (error.response?.data.message) {
-//         return {
-//           message: error.response?.data.message,
-//         };
-//       }
-//     }
-//     return {
-//       message: "Erro ao salvar a missão. Por favor, tente novamente.",
-//     };
-//   }
-// }
+  return {
+    ...tournament,
+    spaces: tournament.spaces.map((space) => ({
+      id: space.id,
+      name: space.name,
+    })),
+  };
+}

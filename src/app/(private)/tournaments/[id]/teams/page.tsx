@@ -18,9 +18,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useState } from "react";
 
-export default function TeamsPage({ params }: { params: { id: string } }) {
+export default function TeamsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
   const [teams, setTeams] = useState([
     {
@@ -93,12 +98,12 @@ export default function TeamsPage({ params }: { params: { id: string } }) {
       return;
     }
 
-    router.push(`/tournaments/${params.id}/rounds`);
+    router.push(`/tournaments/${id}/rounds`);
   };
 
   return (
     <div className="container mx-auto py-6">
-      <TournamentTabs id={params.id} activeTab="teams" />
+      <TournamentTabs id={id} activeTab="teams" />
 
       <div className="flex justify-between items-center my-6">
         <h2 className="text-2xl font-semibold">Times</h2>

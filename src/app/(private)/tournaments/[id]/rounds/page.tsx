@@ -31,14 +31,18 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle, Clock, Play, X } from "lucide-react";
-import { useState } from "react";
+import { use, useState } from "react";
 
-export default function RoundsPage({ params }: { params: { id: string } }) {
+export default function RoundsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const [currentRound, setCurrentRound] = useState("1");
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
   const [woDialogOpen, setWoDialogOpen] = useState(false);
   const [selectedGame, setSelectedGame] = useState<any>(null);
-
+  const { id } = use(params);
   // Mock data for rounds
   const rounds = {
     "1": [
@@ -160,7 +164,7 @@ export default function RoundsPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto py-6">
-      <TournamentTabs id={params.id} activeTab="rounds" />
+      <TournamentTabs id={id} activeTab="rounds" />
 
       <div className="flex justify-between items-center my-6">
         <div className="flex items-center gap-4">

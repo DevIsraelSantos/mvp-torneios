@@ -8,8 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { use } from "react";
 
-export default function RankingPage({ params }: { params: { id: string } }) {
+export default function RankingPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   // Mock data for rankings
   const rankings = [
     {
@@ -68,7 +74,7 @@ export default function RankingPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto py-6">
-      <TournamentTabs id={params.id} activeTab="ranking" />
+      <TournamentTabs id={id} activeTab="ranking" />
 
       <Card className="mt-6">
         <CardHeader>

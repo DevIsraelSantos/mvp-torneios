@@ -12,17 +12,19 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
 export default function TournamentDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
+  const { id } = use(params);
 
   // Mock tournament data
   const tournament = {
-    id: params.id,
+    id: id,
     name: "Torneio de Verão 2023",
     status: "active",
     teams: 4,
@@ -43,7 +45,7 @@ export default function TournamentDetailsPage({
 
   return (
     <div className="container mx-auto py-6">
-      <TournamentTabs id={params.id} activeTab="details" />
+      <TournamentTabs id={id} activeTab="details" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <Card>
@@ -126,7 +128,7 @@ export default function TournamentDetailsPage({
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => router.push(`/tournaments/${params.id}/teams`)}
+                onClick={() => router.push(`/tournaments/${id}/teams`)}
               >
                 Ver Times
               </Button>
