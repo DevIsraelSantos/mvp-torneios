@@ -50,7 +50,7 @@ export default function TournamentDetailsPage() {
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="font-medium">Quantidade de sets:</dt>
+                <dt className="font-medium">Modalidade de jogo:</dt>
                 <dd>
                   {(() => {
                     switch (tournament.category) {
