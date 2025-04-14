@@ -207,7 +207,6 @@ export default function NewTournamentPage() {
                           {space.name}
                         </Label>
                         <Button
-                          type="button"
                           variant="destructive"
                           size="icon"
                           onClick={() => handleRemoveSpace(space.id)}
@@ -258,15 +257,13 @@ export default function NewTournamentPage() {
 
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <>
-                        <Button
-                          type="submit"
-                          disabled={isPending || spaceName !== ""}
-                        >
-                          Criar Torneio
-                        </Button>
-                      </>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="submit"
+                        disabled={isPending || spaceName !== ""}
+                      >
+                        Criar Torneio
+                      </Button>
                     </TooltipTrigger>
                     {spaceName !== "" && (
                       <TooltipContent>
