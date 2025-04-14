@@ -9,7 +9,7 @@
     "lint": "next lint",
     "postinstall": "npm run db:generate",
     "postbuild": "npm run db:push",
-    "db": "npm run db:generate && npm run db:push",
+    "db": "npm run db:push",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "test:pr": "next build"

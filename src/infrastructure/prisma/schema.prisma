@@ -7,11 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum UserRole {
-  ADMIN
-  USER
-}
-
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
@@ -25,53 +20,6 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId String? @db.ObjectId
-
-  userTenant   UserTenant?
-  userTenantId String?     @db.ObjectId
-}
-
-model UserTenant {
-  id    String   @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  email String
-  role  UserRole @default(USER)
-
-  isActive Boolean @default(true)
-  points   Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User?  @relation(fields: [userId], references: [id])
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-
-  userId   String? @unique @db.ObjectId
-  tenantId String  @db.ObjectId
-
-  achievements         Achievement[] @relation("UserTenantAchievements")
-  approvedAchievements Achievement[] @relation("UserTenantApprovedAchievements")
-}
-
-model Tenant {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-
-  createdAt DateTime @default(now())
-
-  users       User[]
-  userTenant  UserTenant[]
-  missions    Mission[]
-  rewards     Reward[]
-  Achievement Achievement[]
-}
-
-model LoginAttempts {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String
-  createdAt DateTime @default(now())
 }
 
 model Account {
@@ -129,63 +77,4 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, credentialID])
-}
-
-model Mission {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  points      Int
-  isEnable    Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-  tenantId String @db.ObjectId
-
-  achievements Achievement[]
-}
-
-model Reward {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  description    String
-  points         Int
-  isEnable       Boolean
-  isUniqueReedem Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-  tenantId String @db.ObjectId
-}
-
-enum AchievementStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-model Achievement {
-  id       String            @id @default(auto()) @map("_id") @db.ObjectId
-  evidence String
-  status   AchievementStatus @default(PENDING)
-
-  creator   UserTenant @relation(fields: [creatorId], references: [id], onDelete: Cascade, name: "UserTenantAchievements")
-  creatorId String     @db.ObjectId
-
-  reviewer   UserTenant? @relation(fields: [reviewerId], references: [id], onDelete: Cascade, name: "UserTenantApprovedAchievements")
-  reviewerId String?     @db.ObjectId
-  feedback   String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  mission   Mission @relation(fields: [missionId], references: [id])
-  missionId String  @db.ObjectId
-
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-  tenantId String @db.ObjectId
 }
