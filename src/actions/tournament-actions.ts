@@ -35,7 +35,6 @@ export async function createTournamentAction(
   message: string;
 }> {
   try {
-    console.log({ formData });
     const validatedFields = TournamentSchema.safeParse({
       name: formData.get("name"),
       lossPoints: Number(formData.get("lossPoints")),
@@ -48,7 +47,6 @@ export async function createTournamentAction(
     });
 
     if (!validatedFields.success) {
-      console.log(validatedFields.error.flatten().fieldErrors);
       return {
         success: false,
         errors: validatedFields.error.flatten().fieldErrors,
@@ -192,8 +190,7 @@ export async function createOrUpdateTeamAction({
       success: true,
       message: team.id,
     };
-  } catch (e) {
-    console.error(e);
+  } catch {
     return {
       success: false,
       message: "Erro ao criar ou atualizar o time.",
@@ -223,8 +220,7 @@ export async function deleteTeamAction(id: string): Promise<{
       success: true,
       message: "Time deletado com sucesso.",
     };
-  } catch (e) {
-    console.error(e);
+  } catch {
     return {
       success: false,
       message: "Erro ao deletar o time.",

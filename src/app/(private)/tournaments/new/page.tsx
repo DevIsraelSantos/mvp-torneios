@@ -38,7 +38,6 @@ export default function NewTournamentPage() {
       spaces.forEach((space) => {
         payload.append("spaces", space.name);
       });
-      console.log({ payload });
 
       const response = await createTournamentAction(state, payload);
 
