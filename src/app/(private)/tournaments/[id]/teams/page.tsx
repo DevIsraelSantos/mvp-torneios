@@ -1,6 +1,17 @@
 "use client";
 
 import { TournamentTabs } from "@/components/tournament-tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +36,7 @@ import { toast } from "sonner";
 
 export default function TeamsPage() {
   const router = useRouter();
-  const { tournament, team } = useTournament();
+  const { tournament, team: teamActions } = useTournament();
   const [newTeam, setNewTeam] = useState({ name: "", players: [""] });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,12 +83,10 @@ export default function TeamsPage() {
       return;
     }
 
-    team.add({
+    teamActions.add({
       name: newTeam.name,
       players: filteredPlayers,
     });
-
-    toast(`🟢 Time ${newTeam.name} criado`);
 
     setNewTeam({ name: "", players: [""] });
     setDialogOpen(false);
@@ -238,9 +247,42 @@ export default function TeamsPage() {
                   <Button variant={"outline"} size="icon">
                     <Pen />
                   </Button>
-                  <Button variant={"destructive"} size="icon">
-                    <Trash2 />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant={"destructive"} size="icon">
+                        <Trash2 />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Tem certeza que deseja apagar o time{" "}
+                          <span className="font-bold text-destructive">
+                            {team.name}
+                          </span>
+                          ?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Todos os dados
+                          associados a este time serão perdidos.
+                          <br />
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button
+                            variant="destructive"
+                            onClick={() => {
+                              teamActions.remove(team.id!);
+                            }}
+                          >
+                            APAGAR
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardTitle>
             </CardHeader>

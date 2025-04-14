@@ -1,8 +1,12 @@
 "use client";
-import { createOrUpdateTeamAction } from "@/actions/tournament-actions";
+import {
+  createOrUpdateTeamAction,
+  deleteTeamAction,
+} from "@/actions/tournament-actions";
 import { Team } from "@/entities/team.entity";
 import { Tournament } from "@/entities/tournament.entity";
 import { createContext, ReactNode, useContext, useState } from "react";
+import { toast } from "sonner";
 
 type TournamentContextType = {
   tournament: Tournament;
@@ -40,6 +44,7 @@ export const TournamentProvider = ({
   };
 
   const addTeam = async (team: { name: string; players: string[] }) => {
+    const loading = toast.loading(`Criando`);
     let newTeam: Team = {
       name: team.name,
       players: team.players,
@@ -57,6 +62,8 @@ export const TournamentProvider = ({
       ...prev,
       teams: [newTeam, ...currentTeams],
     }));
+    toast.dismiss(loading);
+    toast(`🟢 Time ${newTeam.name} criado com sucesso`);
   };
 
   const updateTeam = (
@@ -66,8 +73,24 @@ export const TournamentProvider = ({
     console.log("updateTeam", id, team);
   };
 
-  const removeTeam = (id: string) => {
-    console.log("removeTeam", id);
+  const removeTeam = async (id: string) => {
+    const loading = toast.loading(`Deletando`);
+
+    const actionResult = await deleteTeamAction(id);
+    if (!actionResult.success) {
+      toast.error(`${actionResult.message}`);
+      return;
+    }
+
+    const currentTeams = tournament.teams || [];
+
+    setTournament((prev) => ({
+      ...prev,
+      teams: [...currentTeams.filter((team) => team.id !== id)],
+    }));
+
+    toast.dismiss(loading);
+    toast.warning(`🟡 Time apagado`);
   };
 
   return (

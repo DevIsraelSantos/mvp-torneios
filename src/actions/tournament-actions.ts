@@ -195,3 +195,34 @@ export async function createOrUpdateTeamAction({
     };
   }
 }
+
+export async function deleteTeamAction(id: string): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    await prisma.teams.delete({
+      where: {
+        id,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Time deletado com sucesso.",
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      success: false,
+      message: "Erro ao deletar o time.",
+    };
+  }
+}
