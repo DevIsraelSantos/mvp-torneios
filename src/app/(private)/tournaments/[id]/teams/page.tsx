@@ -106,14 +106,18 @@ export default function TeamsPage() {
     <div className="container mx-auto py-6 flex flex-col gap-6">
       <TournamentTabs id={tournament.id!} activeTab="teams" />
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold flex gap-4">
+        <h2 className="text-2xl font-semibold flex gap-4 justify-center items-center w-fit">
           Times
+          <Badge variant="outline" className="text-base">
+            {tournament.teams?.length}
+          </Badge>
           <div className="items-center gap-2 hidden md:flex">
             <Input
               type="text"
-              placeholder="Pesquisar times..."
+              placeholder="Pesquisar times ou jogadores..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-60"
             />
             {searchTerm ? (
               <Trash2
@@ -211,7 +215,7 @@ export default function TeamsPage() {
       <div className="flex items-center gap-2 md:hidden">
         <Input
           type="text"
-          placeholder="Pesquisar times..."
+          placeholder="Pesquisar times ou jogadores..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

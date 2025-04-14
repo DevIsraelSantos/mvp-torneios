@@ -84,7 +84,9 @@ export default function TournamentDetailsPage() {
           <CardContent>
             <div className="flex justify-between items-center mb-4">
               <span className="font-medium">Total de quadras:</span>
-              <Badge variant="outline">{tournament.spaces?.length}</Badge>
+              <Badge variant="outline" className="text-base">
+                {tournament.spaces?.length}
+              </Badge>
             </div>
             <ul className="space-y-2">
               {tournament.spaces?.map((space, index) => (
@@ -107,7 +109,18 @@ export default function TournamentDetailsPage() {
           <CardContent>
             <div className="flex justify-between items-center">
               <span className="font-medium">Total de times:</span>
-              <Badge variant="outline">{tournament.teams?.length}</Badge>
+              <Badge variant="outline" className="text-base">
+                {tournament.teams?.length}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Total de jogadores:</span>
+              <Badge variant="outline" className="text-base">
+                {tournament.teams.reduce(
+                  (acc, team) => acc + team.players.length,
+                  0
+                )}
+              </Badge>
             </div>
             <div className="mt-4">
               <Button
