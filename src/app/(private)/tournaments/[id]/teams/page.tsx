@@ -269,16 +269,14 @@ export default function TeamsPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction asChild>
-                          <Button
-                            variant="destructive"
-                            onClick={() => {
-                              teamActions.remove(team.id!);
-                            }}
-                          >
-                            APAGAR
-                          </Button>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant={"destructive"}
+                          onClick={() => {
+                            teamActions.remove(team.id!);
+                          }}
+                        >
+                          APAGAR
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
