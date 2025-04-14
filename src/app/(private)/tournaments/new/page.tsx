@@ -87,7 +87,6 @@ export default function NewTournamentPage() {
                 <Input
                   id="name"
                   name="name"
-                  defaultValue={"kljh"}
                   minLength={2}
                   placeholder="Ex: Torneio de Verão sub 15"
                   required
