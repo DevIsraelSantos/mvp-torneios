@@ -6,7 +6,7 @@ export interface Tournament {
   numberOfSets?: number;
   status?: boolean;
 
-  lossScore?: number;
+  lossPoints?: number;
   winPoints?: number;
   spaces?: Space[];
 

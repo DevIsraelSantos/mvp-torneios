@@ -143,10 +143,10 @@ export default function NewTournamentPage() {
                     />
                   </div>
                   <div className="grid gap-3">
-                    <Label htmlFor="lossScore">Derrota</Label>
+                    <Label htmlFor="lossPoints">Derrota</Label>
                     <Input
-                      id="lossScore"
-                      name="lossScore"
+                      id="lossPoints"
+                      name="lossPoints"
                       type="number"
                       min="0"
                       defaultValue="0"

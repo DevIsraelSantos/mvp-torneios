@@ -36,7 +36,7 @@ export async function createTournamentAction(
   try {
     const validatedFields = TournamentSchema.safeParse({
       name: formData.get("name"),
-      lossScore: Number(formData.get("lossScore")),
+      lossPoints: Number(formData.get("lossPoints")),
       numberOfSets: Number(formData.get("numberOfSets")),
       winPoints: Number(formData.get("winPoints")),
       spaces: formData.getAll("spaces").map((space) => ({
@@ -52,7 +52,7 @@ export async function createTournamentAction(
       };
     }
 
-    const { name, lossScore, numberOfSets, winPoints, spaces } =
+    const { name, lossPoints, numberOfSets, winPoints, spaces } =
       validatedFields.data;
     console.log({ formData });
     console.log({ spaces });
@@ -81,7 +81,7 @@ export async function createTournamentAction(
     const tournament = await prisma.tournaments.create({
       data: {
         name,
-        lossScore,
+        lossPoints,
         numberOfSets,
         winPoints,
         userId,

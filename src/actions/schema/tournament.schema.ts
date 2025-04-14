@@ -9,7 +9,7 @@ export const TournamentSchema = z.object({
   winPoints: z
     .number()
     .min(0, { message: "O valor deve ser maior ou igual a 0" }),
-  lossScore: z
+  lossPoints: z
     .number()
     .min(0, { message: "O valor deve ser maior ou igual a 0" }),
   spaces: z.array(
