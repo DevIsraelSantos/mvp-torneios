@@ -66,11 +66,31 @@ export const TournamentProvider = ({
     toast(`🟢 Time ${newTeam.name} criado com sucesso`);
   };
 
-  const updateTeam = (
+  const updateTeam = async (
     id: string,
     team: { name: string; players: string[] }
   ) => {
-    console.log("updateTeam", id, team);
+    const loading = toast.loading(`Salvando`);
+
+    const editTeam: Team = {
+      id,
+      name: team.name,
+      players: team.players,
+    };
+
+    await createOrUpdateTeamAction({
+      ...editTeam,
+      tournamentId: tournament.id!,
+    });
+
+    const currentTeams = tournament.teams.filter((t) => t.id !== id) || [];
+
+    setTournament((prev) => ({
+      ...prev,
+      teams: [editTeam, ...currentTeams],
+    }));
+    toast.dismiss(loading);
+    toast(`🟢 Time ${editTeam.name} salvo com sucesso`);
   };
 
   const removeTeam = async (id: string) => {
