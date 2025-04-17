@@ -64,8 +64,9 @@ model Tournaments {
   user   User?   @relation(fields: [userId], references: [id])
   userId String? @db.ObjectId
 
-  spaces Spaces[]
-  teams  Teams[]
+  spaces  Spaces[]
+  teams   Teams[]
+  matches Matches[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -83,6 +84,8 @@ model Spaces {
   tournament   Tournaments? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   tournamentId String?      @db.ObjectId
 
+  matches Matches[]
+
   @@unique([name, tournamentId])
 }
 
@@ -97,4 +100,56 @@ model Teams {
   tournamentsId String?      @db.ObjectId
 
   players String[]
+
+  matchLeft   Matches[] @relation("MatchesTeamLeft")
+  matchRight  Matches[] @relation("MatchesTeamRight")
+  matchWinner Matches[] @relation("MatchesWinner")
+
+  scoresLeft  Scores[] @relation("ScoreTeamLeft")
+  scoresRight Scores[] @relation("ScoreTeamRight")
+}
+
+model Matches {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  teamLeft   Teams?  @relation(fields: [teamLeftId], references: [id], onDelete: Cascade, name: "MatchesTeamLeft")
+  teamLeftId String? @db.ObjectId
+
+  teamRight   Teams?  @relation(fields: [teamRightId], references: [id], onDelete: Cascade, name: "MatchesTeamRight")
+  teamRightId String? @db.ObjectId
+
+  round Int
+
+  space    Spaces @relation(fields: [spacesId], references: [id], onDelete: Cascade)
+  spacesId String @db.ObjectId
+
+  winner   Teams?  @relation(fields: [winnerId], references: [id], onDelete: Cascade, name: "MatchesWinner")
+  winnerId String? @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tournament    Tournaments? @relation(fields: [tournamentsId], references: [id], onDelete: Cascade)
+  tournamentsId String?      @db.ObjectId
+
+  scores Scores[]
+}
+
+model Scores {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  position Int // Posição do set no game (1, 2, 3...)
+
+  teamLeft   Teams?  @relation(fields: [teamLeftId], references: [id], onDelete: Cascade, name: "ScoreTeamLeft")
+  teamLeftId String? @db.ObjectId
+
+  teamRight   Teams?  @relation(fields: [teamRightId], references: [id], onDelete: Cascade, name: "ScoreTeamRight")
+  teamRightId String? @db.ObjectId
+
+  scoreLeft  Int
+  scoreRight Int
+
+  match   Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId String  @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

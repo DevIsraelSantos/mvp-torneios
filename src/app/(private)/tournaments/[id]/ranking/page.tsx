@@ -1,3 +1,4 @@
+import { QrCode } from "@/components/qr-code";
 import { TournamentTabs } from "@/components/tournament-tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -137,6 +138,7 @@ export default function RankingPage({
           </div>
         </CardContent>
       </Card>
+      <QrCode link="kasjd" />
     </div>
   );
 }
