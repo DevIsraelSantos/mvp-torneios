@@ -123,6 +123,15 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
     include: {
       spaces: true,
       teams: true,
+      matches: {
+        include: {
+          scores: true,
+          teamLeft: true,
+          teamRight: true,
+          space: true,
+          winner: true,
+        },
+      },
     },
   });
 
@@ -132,6 +141,7 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
 
   return {
     ...tournament,
+    hasStarted: tournament.matches.length > 0,
   };
 }
 

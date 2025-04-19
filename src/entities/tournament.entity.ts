@@ -9,6 +9,8 @@ export interface Tournament {
   category: TournamentCategories;
   status?: boolean;
 
+  hasStarted?: boolean;
+
   lossPoints?: number;
   winPoints?: number;
   spaces: Space[];

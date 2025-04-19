@@ -40,7 +40,11 @@ export default function TeamsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const canEdit: boolean = !tournament.hasStarted;
+
   const handleAddPlayer = () => {
+    if (!canEdit) return;
+
     setNewTeam({
       ...newTeam,
       players: [...newTeam.players, ""],
@@ -48,6 +52,8 @@ export default function TeamsPage() {
   };
 
   const handleRemovePlayer = (index: number) => {
+    if (!canEdit) return;
+
     setNewTeam({
       ...newTeam,
       players: newTeam.players.filter((_, i) => i !== index),
@@ -55,6 +61,8 @@ export default function TeamsPage() {
   };
 
   const handlePlayerChange = (index: number, value: string) => {
+    if (!canEdit) return;
+
     const updatedPlayers = [...newTeam.players];
     updatedPlayers[index] = value;
     setNewTeam({
@@ -64,6 +72,8 @@ export default function TeamsPage() {
   };
 
   const handleSubmit = () => {
+    if (!canEdit) return;
+
     // Filter out empty player names
     const filteredPlayers = newTeam.players.filter(
       (name) => name.trim() !== ""
@@ -92,6 +102,7 @@ export default function TeamsPage() {
   };
 
   const handleEditSubmit = () => {
+    if (!canEdit) return;
     // Filter out empty player names
     const filteredPlayers = newTeam.players.filter(
       (name) => name.trim() !== ""
@@ -162,7 +173,10 @@ export default function TeamsPage() {
         <div className="flex gap-2">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button
+                className={`items-center gap-2 ${canEdit ? "flex" : "hidden"}`}
+                disabled={!canEdit}
+              >
                 <Plus className="h-4 w-4" />
                 Adicionar Time
               </Button>
@@ -274,7 +288,13 @@ export default function TeamsPage() {
                       <Button
                         variant={"outline"}
                         size="icon"
+                        className={`${
+                          canEdit
+                            ? "cursor-pointer flex"
+                            : "hidden cursor-not-allowed"
+                        }`}
                         onClick={() => setEditTeamId(team.id!)}
+                        disabled={!canEdit}
                       >
                         <Pen />
                       </Button>
@@ -358,7 +378,16 @@ export default function TeamsPage() {
                   </Dialog>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant={"destructive"} size="icon">
+                      <Button
+                        variant={"destructive"}
+                        className={`${
+                          canEdit
+                            ? "cursor-pointer flex"
+                            : "hidden cursor-not-allowed"
+                        }`}
+                        size="icon"
+                        disabled={!canEdit}
+                      >
                         <Trash2 />
                       </Button>
                     </AlertDialogTrigger>
