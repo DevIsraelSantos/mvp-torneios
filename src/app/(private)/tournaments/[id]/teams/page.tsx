@@ -30,12 +30,10 @@ import { Separator } from "@/components/ui/separator";
 import { Team } from "@/entities/team.entity";
 import { useTournament } from "@/hooks/use-tournament";
 import { Pen, Plus, Search, Trash2, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function TeamsPage() {
-  const router = useRouter();
   const { tournament, team: teamActions } = useTournament();
   const [newTeam, setNewTeam] = useState({ name: "", players: [""] });
   const [editTeamId, setEditTeamId] = useState<string | null>(null);
@@ -123,17 +121,6 @@ export default function TeamsPage() {
     setNewTeam({ name: "", players: [""] });
     setDialogOpen(false);
     setEditTeamId(null);
-  };
-
-  const handleGenerateSchedule = () => {
-    if (tournament.teams.length < 2) {
-      alert(
-        "É necessário ter pelo menos 2 times para gerar a tabela de jogos."
-      );
-      return;
-    }
-
-    router.push(`/tournaments/${tournament.id}/rounds`);
   };
 
   const teamsFiltered: Team[] = tournament.teams.filter(
@@ -245,13 +232,6 @@ export default function TeamsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-
-          <Button
-            onClick={handleGenerateSchedule}
-            disabled={tournament.teams.length < 2}
-          >
-            Gerar Tabela de Jogos
-          </Button>
         </div>
       </div>
       <div className="flex items-center gap-2 md:hidden">
