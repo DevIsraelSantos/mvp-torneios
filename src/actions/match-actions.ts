@@ -20,20 +20,28 @@ function generateRoundRobinSchedules({
   const schedule: Array<Schedule> = [];
   const matchesPerRound = Math.floor(teams.length / 2);
   const totalRounds = teams.length - 1;
-  let matchNumber = 1;
+  const lastTeam = teams.pop();
+  const arrayTeams = [...teams, ...teams];
+  let matchNumber = 0;
+
   for (let round = 0; round < totalRounds; round++) {
-    const currentTeamHeader = teams[round];
-    const _teams = teams.filter((team) => team.id !== currentTeamHeader.id);
+    const leftTeams = arrayTeams.slice(round, round + matchesPerRound);
+    const rightTeams = arrayTeams.slice(
+      round + matchesPerRound,
+      round + matchesPerRound + matchesPerRound - 1
+    );
+
     schedule.push({
-      teamLeft: currentTeamHeader.id,
-      teamRight: _teams.pop()?.id,
+      teamLeft: leftTeams.shift()?.id,
+      teamRight: lastTeam?.id,
       round,
       matchNumber: matchNumber++,
     });
+
     for (let i = 1; i < matchesPerRound; i++) {
       schedule.push({
-        teamLeft: _teams.shift()?.id,
-        teamRight: _teams.pop()?.id,
+        teamLeft: leftTeams.shift()?.id,
+        teamRight: rightTeams.pop()?.id,
         round,
         matchNumber: matchNumber++,
       });
