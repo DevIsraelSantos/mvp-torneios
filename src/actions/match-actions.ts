@@ -22,7 +22,7 @@ function generateRoundRobinSchedules({
   const totalRounds = teams.length - 1;
   const lastTeam = teams.pop();
   const arrayTeams = [...teams, ...teams];
-  let matchNumber = 0;
+  let matchNumber = 1;
 
   for (let round = 0; round < totalRounds; round++) {
     const leftTeams = arrayTeams.slice(round, round + matchesPerRound);
