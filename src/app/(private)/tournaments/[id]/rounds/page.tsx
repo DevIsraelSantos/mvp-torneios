@@ -158,7 +158,7 @@ export default function RoundsPage() {
     const left = match.teamLeft?.name?.toLocaleLowerCase();
     const right = match.teamRight?.name?.toLocaleLowerCase();
 
-    return left?.includes(searchTermLower) || right?.includes(searchTermLower);
+    return left?.includes(searchTermLower) || right.includes(searchTermLower);
   });
 
   const currentRoundNumber =
@@ -174,9 +174,24 @@ export default function RoundsPage() {
     <div className="container mx-auto py-6 flex flex-col gap-6">
       <TournamentTabs id={tournament.id!} activeTab="rounds" />
       {tournament.matches?.length === 0 && (
-        <Button className="w-full" onClick={() => match.generate()}>
-          Gerar tabela de rodadas
-        </Button>
+        <>
+          {tournament.teams?.length <= 1 && (
+            <div className="text-center">
+              <h1 className="text-xl font-semibold mb-2">
+                Crie os time primeiro
+              </h1>
+              <p className="text-muted-foreground">
+                Você precisa de pelo menos dois times para gerar a tabela de
+                rodadas.
+              </p>
+            </div>
+          )}
+          {tournament.teams?.length > 1 && (
+            <Button className="w-full" onClick={() => match.generate()}>
+              Gerar tabela de rodadas
+            </Button>
+          )}
+        </>
       )}
       {tournament.matches?.length !== 0 && (
         <div className="flex justify-between items-center my-6">
