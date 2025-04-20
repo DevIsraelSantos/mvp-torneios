@@ -164,13 +164,20 @@ export default function RoundsPage() {
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-semibold">Rodadas</h2>
           <Select
-            value={`${currentRound}`}
-            onValueChange={(value) => setCurrentRound(Number(value))}
+            value={currentRound !== null ? `${currentRound}` : "-1"}
+            onValueChange={(value) => {
+              if (value === "-1") {
+                setCurrentRound(null);
+                return;
+              }
+              setCurrentRound(Number(value));
+            }}
           >
             <SelectTrigger className="w-32 md:w-50">
               <SelectValue placeholder="Selecione a rodada" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={`-1`}>{"Todas"}</SelectItem>
               {roundsData.map((roundNode) => (
                 <SelectItem key={roundNode.round} value={`${roundNode.round}`}>
                   <span className="hidden md:inline-flex md:mr-2">
@@ -193,12 +200,17 @@ export default function RoundsPage() {
     );
   }
 
+  const matches =
+    currentRound !== null
+      ? roundsData[currentRound].matches
+      : roundsData.flatMap((round) => round.matches);
+
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
       <TournamentTabs id={tournament.id!} activeTab="rounds" />
       <HeaderRounds />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {roundsData[currentRound ?? 0]?.matches.map((match) => (
+        {matches.map((match) => (
           <Card key={match.id} className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex justify-between items-center">
