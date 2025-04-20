@@ -151,14 +151,14 @@ export default function RoundsPage() {
     if (searchTerm === "") return true;
     const numberTerm = parseInt(searchTerm, 10);
     const searchTermLower = searchTerm.toLocaleLowerCase();
-    if (!isNaN(numberTerm)) {
-      return match.matchNumber === numberTerm;
+    if (match.matchNumber === numberTerm) {
+      return true;
     }
 
-    if (match.teamLeft?.name?.toLocaleLowerCase().includes(searchTermLower))
-      return true;
-    if (match.teamRight?.name?.toLocaleLowerCase().includes(searchTermLower))
-      return true;
+    const left = match.teamLeft?.name?.toLocaleLowerCase();
+    const right = match.teamRight?.name?.toLocaleLowerCase();
+
+    return left?.includes(searchTermLower) || right?.includes(searchTermLower);
   });
 
   const currentRoundNumber =
