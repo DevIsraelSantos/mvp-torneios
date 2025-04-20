@@ -18,31 +18,51 @@ function generateRoundRobinSchedules({
   teams: Team[];
 }): Array<Schedule> {
   const schedule: Array<Schedule> = [];
-  const matchesPerRound = Math.floor(teams.length / 2);
-  const totalRounds = teams.length - 1;
-  const lastTeam = teams.pop();
-  const arrayTeams = [...teams, ...teams];
-  let matchNumber = 1;
+  const _teams = teams.map((team) => team.id!);
+  const rounds: string[][][] = [];
+  const teamCount = _teams.length;
+
+  const isOdd = teamCount % 2 !== 0;
+  if (isOdd) {
+    _teams.push("BYE");
+  }
+
+  const totalRounds = _teams.length - 1;
+  const matchesPerRound = _teams.length / 2;
+  const teamList = [..._teams];
 
   for (let round = 0; round < totalRounds; round++) {
-    const leftTeams = arrayTeams.slice(round, round + matchesPerRound);
-    const rightTeams = arrayTeams.slice(
-      round + matchesPerRound,
-      round + matchesPerRound + matchesPerRound - 1
-    );
+    const matches: string[][] = [];
 
-    schedule.push({
-      teamLeft: leftTeams.shift()?.id,
-      teamRight: lastTeam?.id,
-      round,
-      matchNumber: matchNumber++,
-    });
+    for (let i = 0; i < matchesPerRound; i++) {
+      const home = teamList[i];
+      const away = teamList[teamList.length - 1 - i];
 
-    for (let i = 1; i < matchesPerRound; i++) {
+      if (home !== "BYE" && away !== "BYE") {
+        matches.push([home, away]);
+      }
+    }
+
+    rounds.push(matches);
+
+    const fixed = teamList[0];
+    const rotated = [
+      fixed,
+      ...teamList.slice(1).slice(-1),
+      ...teamList.slice(1, -1),
+    ];
+    teamList.splice(0, teamList.length, ...rotated);
+  }
+
+  let matchNumber = 1;
+  for (let round = 0; round < rounds.length; round++) {
+    const matches = rounds[round];
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
       schedule.push({
-        teamLeft: leftTeams.shift()?.id,
-        teamRight: rightTeams.pop()?.id,
-        round,
+        teamLeft: match[0],
+        teamRight: match[1],
+        round: round,
         matchNumber: matchNumber++,
       });
     }
