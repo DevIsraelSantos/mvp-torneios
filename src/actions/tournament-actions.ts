@@ -141,6 +141,12 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
 
   return {
     ...tournament,
+    matches: tournament.matches.map((match) => ({
+      ...match,
+      teamLeft: match.teamLeft || undefined,
+      teamRight: match.teamRight || undefined,
+      winner: match.winner || undefined,
+    })),
     hasStarted: tournament.matches.length > 0,
   };
 }

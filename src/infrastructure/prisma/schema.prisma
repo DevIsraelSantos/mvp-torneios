@@ -96,8 +96,8 @@ model Teams {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tournament    Tournaments? @relation(fields: [tournamentsId], references: [id], onDelete: Cascade)
-  tournamentsId String?      @db.ObjectId
+  tournament   Tournaments? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournamentId String?      @db.ObjectId
 
   players String[]
 
@@ -117,7 +117,8 @@ model Matches {
   teamRight   Teams?  @relation(fields: [teamRightId], references: [id], onDelete: Cascade, name: "MatchesTeamRight")
   teamRightId String? @db.ObjectId
 
-  round Int
+  round         Int
+  roundPosition Int
 
   space    Spaces @relation(fields: [spacesId], references: [id], onDelete: Cascade)
   spacesId String @db.ObjectId
@@ -128,8 +129,8 @@ model Matches {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tournament    Tournaments? @relation(fields: [tournamentsId], references: [id], onDelete: Cascade)
-  tournamentsId String?      @db.ObjectId
+  tournament   Tournaments? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournamentId String?      @db.ObjectId
 
   scores Scores[]
 }

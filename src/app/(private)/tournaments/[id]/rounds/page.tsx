@@ -84,7 +84,7 @@ export default function RoundsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { tournament } = useTournament();
+  const { tournament, match } = useTournament();
   const [currentRound, setCurrentRound] = useState("1");
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
   const [woDialogOpen, setWoDialogOpen] = useState(false);
@@ -173,7 +173,11 @@ export default function RoundsPage({
 
   function HeaderRounds() {
     if (roundsData.length === 0)
-      return <Button className="w-full">Gerar tabela de rodadas</Button>;
+      return (
+        <Button className="w-full" onClick={() => match.generate()}>
+          Gerar tabela de rodadas
+        </Button>
+      );
 
     return (
       <div className="flex justify-between items-center my-6">

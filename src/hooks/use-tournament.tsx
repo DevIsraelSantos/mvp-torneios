@@ -1,4 +1,5 @@
 "use client";
+import { createMatchTable } from "@/actions/match-actions";
 import {
   createOrUpdateTeamAction,
   deleteTeamAction,
@@ -17,6 +18,9 @@ type TournamentContextType = {
     add: (team: { name: string; players: string[] }) => void;
     update: (id: string, team: { name: string; players: string[] }) => void;
     remove: (id: string) => void;
+  };
+  match: {
+    generate: () => void;
   };
 };
 
@@ -49,10 +53,12 @@ export const TournamentProvider = ({
       name: team.name,
       players: team.players,
     };
-    const { message: id } = await createOrUpdateTeamAction({
-      ...newTeam,
-      tournamentId: tournament.id!,
-    });
+
+    const id = "new-team-id"; // TODO: TODO: Resolve error
+    // const { message: id } = await createOrUpdateTeamAction({
+    //   ...newTeam,
+    //   tournamentId: tournament.id!,
+    // });
 
     newTeam = { ...newTeam, id };
 
@@ -78,10 +84,11 @@ export const TournamentProvider = ({
       players: team.players,
     };
 
-    await createOrUpdateTeamAction({
-      ...editTeam,
-      tournamentId: tournament.id!,
-    });
+    // TODO: Resolve error
+    // await createOrUpdateTeamAction({
+    //   ...editTeam,
+    //   tournamentId: tournament.id!,
+    // });
 
     const currentTeams = tournament.teams.filter((t) => t.id !== id) || [];
 
@@ -113,6 +120,22 @@ export const TournamentProvider = ({
     toast.warning(`🟡 Time apagado`);
   };
 
+  const generateMatchTable = async () => {
+    const loading = toast.loading(`Gerando tabela de jogos`);
+    const actionResult = await createMatchTable({
+      tournamentId: tournament.id!,
+    });
+    toast.dismiss(loading);
+    if (!actionResult.success) {
+      toast.error(`${actionResult.message}`);
+      return;
+    }
+    // setTournament((prev) => ({
+    //   ...prev,
+    //   matches: actionResult.matches,
+    // }));
+    toast.success(`${actionResult.message}`);
+  };
   return (
     <TournamentContext.Provider
       value={{
@@ -124,6 +147,9 @@ export const TournamentProvider = ({
           add: addTeam,
           update: updateTeam,
           remove: removeTeam,
+        },
+        match: {
+          generate: generateMatchTable,
         },
       }}
     >
