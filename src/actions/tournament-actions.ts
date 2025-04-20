@@ -1,9 +1,10 @@
 "use server";
+
 import { auth } from "@/auth";
-import { prisma } from "@/prisma";
-import { TournamentSchema } from "./schema/tournament.schema";
 import { Tournament } from "@/entities/tournament.entity";
+import { prisma } from "@/prisma";
 import { TournamentCategories } from "@prisma/client";
+import { TournamentSchema } from "./schema/tournament.schema";
 
 export async function fetchTournaments() {
   const session = await auth();
@@ -146,6 +147,7 @@ export async function getTournamentByIdAction(id: string): Promise<Tournament> {
       teamLeft: match.teamLeft || undefined,
       teamRight: match.teamRight || undefined,
       winner: match.winner || undefined,
+      tournamentId: match.tournamentId ?? undefined,
     })),
     hasStarted: tournament.matches.length > 0,
   };
@@ -156,12 +158,12 @@ export async function createOrUpdateTeamAction({
   players,
   id,
   tournamentId,
-}: {
+}: Partial<{
   id?: string;
   tournamentId: string;
   name: string;
   players: string[];
-}): Promise<{
+}>): Promise<{
   success: boolean;
   message: string;
 }> {

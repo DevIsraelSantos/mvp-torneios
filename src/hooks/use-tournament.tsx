@@ -1,4 +1,5 @@
 "use client";
+
 import { createMatchTable } from "@/actions/match-actions";
 import {
   createOrUpdateTeamAction,
@@ -54,11 +55,10 @@ export const TournamentProvider = ({
       players: team.players,
     };
 
-    const id = "new-team-id"; // TODO: TODO: Resolve error
-    // const { message: id } = await createOrUpdateTeamAction({
-    //   ...newTeam,
-    //   tournamentId: tournament.id!,
-    // });
+    const { message: id } = await createOrUpdateTeamAction({
+      ...newTeam,
+      tournamentId: tournament.id!,
+    });
 
     newTeam = { ...newTeam, id };
 
@@ -84,11 +84,10 @@ export const TournamentProvider = ({
       players: team.players,
     };
 
-    // TODO: Resolve error
-    // await createOrUpdateTeamAction({
-    //   ...editTeam,
-    //   tournamentId: tournament.id!,
-    // });
+    await createOrUpdateTeamAction({
+      ...editTeam,
+      tournamentId: tournament.id!,
+    });
 
     const currentTeams = tournament.teams.filter((t) => t.id !== id) || [];
 
