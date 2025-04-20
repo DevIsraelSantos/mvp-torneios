@@ -1,3 +1,4 @@
+import { MatchStatus } from "@prisma/client";
 import { Score } from "./score.entity";
 import { Space } from "./space.entity";
 import { Team } from "./team.entity";
@@ -8,6 +9,10 @@ export interface Match {
   space?: Space;
 
   scores?: Array<Score>;
+
+  round?: number;
+  matchNumber?: number;
+  status?: MatchStatus;
 
   teamLeft?: Team;
   teamRight?: Team;

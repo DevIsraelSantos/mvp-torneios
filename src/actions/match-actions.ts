@@ -1,65 +1,61 @@
 "use server";
 
 import { auth } from "@/auth";
+import { Team } from "@/entities/team.entity";
 import { prisma } from "@/prisma";
+import { TournamentCategories } from "@prisma/client";
 
-function generateMatches(tournamentId: string): Array<{
-  teamLeft: string;
-  teamRight: string;
-  space: string;
+type Schedule = {
+  teamLeft?: string;
+  teamRight?: string;
   round: number;
-  roundPosition: number;
-}> {
-  console.log("Gerando tabela de jogos para o torneio:", tournamentId);
-  const teamA = "67fd80baa9261689cf415c69";
-  const teamB = "67fd80bea9261689cf415c6a";
-  const teamC = "67fd80c2a9261689cf415c6b";
-  const teamD = "68043f4037ee6cffafa0f080";
-  const space = "67fd8076a9261689cf415c68";
-  return [
-    {
-      teamLeft: teamA,
-      teamRight: teamB,
-      space,
-      round: 1,
-      roundPosition: 1,
-    },
-    {
-      teamLeft: teamC,
-      teamRight: teamD,
-      space,
-      round: 1,
-      roundPosition: 2,
-    },
-    {
-      teamLeft: teamA,
-      teamRight: teamC,
-      space,
-      round: 2,
-      roundPosition: 1,
-    },
-    {
-      teamLeft: teamB,
-      teamRight: teamD,
-      space,
-      round: 2,
-      roundPosition: 2,
-    },
-    {
-      teamLeft: teamA,
-      teamRight: teamD,
-      space,
-      round: 3,
-      roundPosition: 1,
-    },
-    {
-      teamLeft: teamB,
-      teamRight: teamC,
-      space,
-      round: 3,
-      roundPosition: 2,
-    },
-  ];
+  matchNumber: number;
+};
+
+function generateRoundRobinSchedules({
+  teams,
+}: {
+  teams: Team[];
+}): Array<Schedule> {
+  const schedule: Array<Schedule> = [];
+  const matchesPerRound = Math.floor(teams.length / 2);
+  const totalRounds = teams.length - 1;
+  let matchNumber = 1;
+  for (let round = 0; round < totalRounds; round++) {
+    const currentTeamHeader = teams[round];
+    const _teams = teams.filter((team) => team.id !== currentTeamHeader.id);
+    schedule.push({
+      teamLeft: currentTeamHeader.id,
+      teamRight: _teams.pop()?.id,
+      round,
+      matchNumber: matchNumber++,
+    });
+    for (let i = 1; i < matchesPerRound; i++) {
+      schedule.push({
+        teamLeft: _teams.shift()?.id,
+        teamRight: _teams.pop()?.id,
+        round,
+        matchNumber: matchNumber++,
+      });
+    }
+  }
+
+  return schedule;
+}
+
+function generateSchedule({
+  teams,
+  category,
+}: {
+  teams: Team[];
+  category?: TournamentCategories;
+}): Array<Schedule> {
+  switch (category) {
+    case TournamentCategories.ROUND_ROBIN:
+      return generateRoundRobinSchedules({ teams });
+    default:
+      throw new Error("Categoria de torneio não suportada");
+  }
 }
 
 export async function createMatchTable({
@@ -78,16 +74,27 @@ export async function createMatchTable({
       throw new Error("User not authenticated");
     }
 
-    const matchGames = generateMatches(tournamentId);
+    const tournament = await prisma.tournaments.findUnique({
+      where: {
+        id: tournamentId,
+      },
+      include: {
+        teams: true,
+      },
+    });
+
+    const matchGames = generateSchedule({
+      category: tournament?.category,
+      teams: tournament?.teams || [],
+    });
 
     const matches = await prisma.matches.createMany({
       data: matchGames.map((match) => ({
         round: match.round,
-        roundPosition: match.roundPosition,
-        spacesId: match.space,
         teamLeftId: match.teamLeft,
         teamRightId: match.teamRight,
         tournamentId: tournamentId,
+        matchNumber: match.matchNumber,
       })),
     });
 

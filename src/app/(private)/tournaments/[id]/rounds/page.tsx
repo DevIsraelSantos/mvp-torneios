@@ -32,80 +32,32 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
-import { AlertCircle, CheckCircle, Clock, Play, X } from "lucide-react";
-import { use, useState } from "react";
+import { MatchStatus } from "@prisma/client";
+import { AlertCircle, CheckCircle, Clock, Play } from "lucide-react";
+import { useState } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const roundsOld = {
-  "1": [
-    {
-      id: 1,
-      teamA: "Time A",
-      teamB: "Time B",
-      court: "Quadra 1",
-      status: "waiting",
-    },
-    {
-      id: 2,
-      teamA: "Time C",
-      teamB: "Time D",
-      court: "Quadra 2",
-      status: "in_progress",
-    },
-  ],
-  "2": [
-    {
-      id: 3,
-      teamA: "Time A",
-      teamB: "Time C",
-      court: "Quadra 1",
-      status: "finished",
-      score: [
-        [25, 20],
-        [25, 18],
-        [15, 25],
-        [25, 22],
-      ],
-    },
-    {
-      id: 4,
-      teamA: "Time B",
-      teamB: "Time D",
-      court: "Quadra 2",
-      status: "wo",
-      winner: "Time B",
-      reason: "Time D não compareceu",
-    },
-  ],
-};
+interface Round {
+  round: number;
+  matches: Match[];
+}
 
-export default function RoundsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function RoundsPage() {
   const { tournament, match } = useTournament();
-  const [currentRound, setCurrentRound] = useState("1");
+  const [currentRound, setCurrentRound] = useState<number | null>(null);
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
   const [woDialogOpen, setWoDialogOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedGame, setSelectedGame] = useState<any>(null);
 
-  const { id } = use(params);
-  // Mock data for rounds
-  const rounds = {};
-
-  console.log("Tournament data:", tournament);
-
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: MatchStatus) => {
     switch (status) {
-      case "waiting":
+      case "PENDING":
         return (
           <Badge variant="outline" className="flex items-center gap-1">
             <Clock className="h-3 w-3" /> Aguardando
           </Badge>
         );
-      case "in_progress":
+      case "IN_PROGRESS":
         return (
           <Badge
             variant="default"
@@ -114,19 +66,13 @@ export default function RoundsPage({
             <Play className="h-3 w-3" /> Em andamento
           </Badge>
         );
-      case "finished":
+      case "FINISHED":
         return (
           <Badge
             variant="default"
             className="flex items-center gap-1 bg-green-500"
           >
             <CheckCircle className="h-3 w-3" /> Finalizado
-          </Badge>
-        );
-      case "wo":
-        return (
-          <Badge variant="destructive" className="flex items-center gap-1">
-            <X className="h-3 w-3" /> WO
           </Badge>
         );
       default:
@@ -169,7 +115,30 @@ export default function RoundsPage({
     console.log("Starting next round");
   };
 
-  const roundsData: Match[] = [];
+  const roundsData: Array<Round> =
+    tournament.matches
+      ?.reduce((acc: Array<Round>, match) => {
+        const round = match.round!;
+        const existingRound = acc.find((r) => r.round === round);
+        if (existingRound) {
+          existingRound.matches.push(match);
+        } else {
+          acc.push({ round, matches: [match] });
+        }
+        return acc;
+      }, [])
+      .sort((a, b) => a.round - b.round)
+      .map((round) => {
+        return {
+          round: round.round,
+          matches: round.matches.sort((a, b) => {
+            if (a.roundPosition && b.roundPosition) {
+              return a.roundPosition - b.roundPosition;
+            }
+            return 0;
+          }),
+        };
+      }) || [];
 
   function HeaderRounds() {
     if (roundsData.length === 0)
@@ -179,24 +148,42 @@ export default function RoundsPage({
         </Button>
       );
 
+    const currentRoundNumber =
+      roundsData
+        .filter((node) =>
+          node.matches.some((match) => match.status !== "FINISHED")
+        )
+        .at(0)?.round ??
+      roundsData.at(-1)?.round ??
+      0;
+
+    if (currentRound === null) setCurrentRound(currentRoundNumber);
+
     return (
       <div className="flex justify-between items-center my-6">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-semibold">Rodadas</h2>
-          <Select value={currentRound} onValueChange={setCurrentRound}>
-            <SelectTrigger className="w-20 md:w-50">
+          <Select
+            value={`${currentRound}`}
+            onValueChange={(value) => setCurrentRound(Number(value))}
+          >
+            <SelectTrigger className="w-32 md:w-50">
               <SelectValue placeholder="Selecione a rodada" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">
-                <span
-                  className="
-            hidden md:inline-flex md:mr-2"
-                >
-                  {"Rodada "}
-                </span>
-                {1}
-              </SelectItem>
+              {roundsData.map((roundNode) => (
+                <SelectItem key={roundNode.round} value={`${roundNode.round}`}>
+                  <span className="hidden md:inline-flex md:mr-2">
+                    {"Rodada"}
+                  </span>
+                  {roundNode.round + 1}
+                  {roundNode.round === currentRoundNumber && (
+                    <span className="text-primary font-semibold">
+                      {" (Atual)"}
+                    </span>
+                  )}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -208,31 +195,35 @@ export default function RoundsPage({
 
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
-      <TournamentTabs id={id} activeTab="rounds" />
+      <TournamentTabs id={tournament.id!} activeTab="rounds" />
       <HeaderRounds />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {rounds[currentRound as keyof typeof rounds]?.map((game) => (
-          <Card key={game.id} className="overflow-hidden">
+        {roundsData[currentRound ?? 0]?.matches.map((match) => (
+          <Card key={match.id} className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex justify-between items-center">
-                <span>Jogo #{game.id}</span>
-                {getStatusBadge(game.status)}
+                <span>Jogo #{match.matchNumber}</span>
+                {getStatusBadge(match.status)}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-between items-center py-4">
                 <div className="text-center flex-1">
-                  <div className="font-semibold text-lg">{game.teamA}</div>
+                  <div className="font-semibold text-lg">
+                    {match.teamLeft?.name}
+                  </div>
                 </div>
                 <div className="text-center text-2xl font-bold px-4">VS</div>
                 <div className="text-center flex-1">
-                  <div className="font-semibold text-lg">{game.teamB}</div>
+                  <div className="font-semibold text-lg">
+                    {match.teamRight?.name}
+                  </div>
                 </div>
               </div>
 
-              {game.status === "finished" && (
+              {match.status === MatchStatus.FINISHED && (
                 <div className="mt-2 space-y-1">
-                  {game.score.map((set: number[], index: number) => (
+                  {match?.score?.map((set: number[], index: number) => (
                     <div
                       key={index}
                       className="flex justify-center gap-2 text-sm"
@@ -246,42 +237,40 @@ export default function RoundsPage({
                 </div>
               )}
 
-              {game.status === "wo" && (
+              {/* {match.status === "wo" && (
                 <div className="mt-2 text-center text-sm">
-                  <span className="font-medium">Vencedor: {game.winner}</span>
-                  <p className="text-muted-foreground">{game.reason}</p>
+                  <span className="font-medium">Vencedor: {match.winner}</span>
+                  <p className="text-muted-foreground">{match.reason}</p>
                 </div>
-              )}
+              )} */}
 
               <div className="mt-4 text-sm text-muted-foreground text-center">
-                {game.court}
+                {match.space?.name}
               </div>
             </CardContent>
             <CardFooter className="flex justify-center gap-2 pt-0">
-              {game.status === "waiting" && (
+              {match.status === MatchStatus.PENDING && (
                 <>
-                  <Button size="sm" onClick={() => handleStartGame(game)}>
+                  <Button size="sm" onClick={() => handleStartGame(match)}>
                     Iniciar Jogo
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleWoOo(game)}
+                    onClick={() => handleWoOo(match)}
                   >
                     Não Jogado
                   </Button>
                 </>
               )}
 
-              {game.status === "in_progress" && (
-                <Button size="sm" onClick={() => handleFinishGame(game)}>
+              {match.status === MatchStatus.IN_PROGRESS && (
+                <Button size="sm" onClick={() => handleFinishGame(match)}>
                   Finalizar Jogo
                 </Button>
               )}
 
-              {(game.status === "finished" ||
-                game.status === "wo" ||
-                game.status === "oo") && (
+              {match.status === MatchStatus.FINISHED && (
                 <Button size="sm" variant="outline">
                   Reabrir Jogo
                 </Button>

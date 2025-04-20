@@ -109,6 +109,12 @@ model Teams {
   scoresRight Scores[] @relation("ScoreTeamRight")
 }
 
+enum MatchStatus {
+  PENDING // aguardando
+  IN_PROGRESS // em andamento
+  FINISHED // finalizado
+}
+
 model Matches {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   teamLeft   Teams?  @relation(fields: [teamLeftId], references: [id], onDelete: Cascade, name: "MatchesTeamLeft")
@@ -117,11 +123,12 @@ model Matches {
   teamRight   Teams?  @relation(fields: [teamRightId], references: [id], onDelete: Cascade, name: "MatchesTeamRight")
   teamRightId String? @db.ObjectId
 
-  round         Int
-  roundPosition Int
+  round       Int
+  matchNumber Int
+  status      MatchStatus @default(PENDING)
 
-  space    Spaces @relation(fields: [spacesId], references: [id], onDelete: Cascade)
-  spacesId String @db.ObjectId
+  space    Spaces? @relation(fields: [spacesId], references: [id], onDelete: Cascade)
+  spacesId String? @db.ObjectId
 
   winner   Teams?  @relation(fields: [winnerId], references: [id], onDelete: Cascade, name: "MatchesWinner")
   winnerId String? @db.ObjectId

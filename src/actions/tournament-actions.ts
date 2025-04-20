@@ -178,7 +178,7 @@ export async function createOrUpdateTeamAction({
     if (!id) {
       const team = await prisma.teams.create({
         data: {
-          name,
+          name: name!,
           players,
           tournament: {
             connect: {
