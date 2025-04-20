@@ -132,8 +132,8 @@ export default function RoundsPage() {
         return {
           round: round.round,
           matches: round.matches.sort((a, b) => {
-            if (a.roundPosition && b.roundPosition) {
-              return a.roundPosition - b.roundPosition;
+            if (a.matchNumber && b.matchNumber) {
+              return a.matchNumber - b.matchNumber;
             }
             return 0;
           }),
@@ -157,7 +157,7 @@ export default function RoundsPage() {
       roundsData.at(-1)?.round ??
       0;
 
-    if (currentRound === null) setCurrentRound(currentRoundNumber);
+    // if (currentRound === null) setCurrentRound(currentRoundNumber); // TODO
 
     return (
       <div className="flex justify-between items-center my-6">

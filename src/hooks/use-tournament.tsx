@@ -4,6 +4,7 @@ import { createMatchTable } from "@/actions/match-actions";
 import {
   createOrUpdateTeamAction,
   deleteTeamAction,
+  getTournamentByIdAction,
 } from "@/actions/tournament-actions";
 import { Team } from "@/entities/team.entity";
 import { Tournament } from "@/entities/tournament.entity";
@@ -42,10 +43,9 @@ export const TournamentProvider = ({
     setTournament((prev) => ({ ...prev, ...updates }));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const resetTournament = (id: string) => {
-    // TODO Reset the tournament with ID
-    setTournament(initialTournament);
+  const resetTournament = async (id: string) => {
+    const t = await getTournamentByIdAction(id);
+    setTournament(t);
   };
 
   const addTeam = async (team: { name: string; players: string[] }) => {
@@ -129,11 +129,8 @@ export const TournamentProvider = ({
       toast.error(`${actionResult.message}`);
       return;
     }
-    // setTournament((prev) => ({
-    //   ...prev,
-    //   matches: actionResult.matches,
-    // }));
     toast.success(`${actionResult.message}`);
+    resetTournament(tournament.id!);
   };
   return (
     <TournamentContext.Provider
