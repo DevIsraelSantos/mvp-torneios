@@ -33,7 +33,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
 import { MatchStatus } from "@prisma/client";
-import { AlertCircle, CheckCircle, Clock, Play } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Play,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 
 interface Round {
@@ -48,16 +55,17 @@ export default function RoundsPage() {
   const [woDialogOpen, setWoDialogOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedGame, setSelectedGame] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const getStatusBadge = (status?: MatchStatus) => {
+  const StatusBadge = ({ status }: { status?: MatchStatus }) => {
     switch (status) {
-      case "PENDING":
+      case MatchStatus.PENDING:
         return (
           <Badge variant="outline" className="flex items-center gap-1">
             <Clock className="h-3 w-3" /> Aguardando
           </Badge>
         );
-      case "IN_PROGRESS":
+      case MatchStatus.IN_PROGRESS:
         return (
           <Badge
             variant="default"
@@ -66,7 +74,7 @@ export default function RoundsPage() {
             <Play className="h-3 w-3" /> Em andamento
           </Badge>
         );
-      case "FINISHED":
+      case MatchStatus.FINISHED:
         return (
           <Badge
             variant="default"
@@ -110,11 +118,6 @@ export default function RoundsPage() {
     setWoDialogOpen(false);
   };
 
-  const handleStartNextRound = () => {
-    // Logic to start next round
-    console.log("Starting next round");
-  };
-
   const roundsData: Array<Round> =
     tournament.matches
       ?.reduce((acc: Array<Round>, match) => {
@@ -140,82 +143,105 @@ export default function RoundsPage() {
         };
       }) || [];
 
-  function HeaderRounds() {
-    if (roundsData.length === 0)
-      return (
-        <Button className="w-full" onClick={() => match.generate()}>
-          Gerar tabela de rodadas
-        </Button>
-      );
-
-    const currentRoundNumber =
-      roundsData
-        .filter((node) =>
-          node.matches.some((match) => match.status !== "FINISHED")
-        )
-        .at(0)?.round ??
-      roundsData.at(-1)?.round ??
-      0;
-
-    // if (currentRound === null) setCurrentRound(currentRoundNumber); // TODO
-
-    return (
-      <div className="flex justify-between items-center my-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-semibold">Rodadas</h2>
-          <Select
-            value={currentRound !== null ? `${currentRound}` : "-1"}
-            onValueChange={(value) => {
-              if (value === "-1") {
-                setCurrentRound(null);
-                return;
-              }
-              setCurrentRound(Number(value));
-            }}
-          >
-            <SelectTrigger className="w-32 md:w-50">
-              <SelectValue placeholder="Selecione a rodada" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={`-1`}>{"Todas"}</SelectItem>
-              {roundsData.map((roundNode) => (
-                <SelectItem key={roundNode.round} value={`${roundNode.round}`}>
-                  <span className="hidden md:inline-flex md:mr-2">
-                    {"Rodada"}
-                  </span>
-                  {roundNode.round + 1}
-                  {roundNode.round === currentRoundNumber && (
-                    <span className="text-primary font-semibold">
-                      {" (Atual)"}
-                    </span>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button onClick={handleStartNextRound}>Iniciar Próxima Rodada</Button>
-      </div>
-    );
-  }
-
-  const matches =
+  const matches: Array<Match> = (
     currentRound !== null
       ? roundsData[currentRound].matches
-      : roundsData.flatMap((round) => round.matches);
+      : roundsData.flatMap((round) => round.matches)
+  ).filter((match) => {
+    if (searchTerm === "") return true;
+    const numberTerm = parseInt(searchTerm, 10);
+    const searchTermLower = searchTerm.toLocaleLowerCase();
+    if (!isNaN(numberTerm)) {
+      return match.matchNumber === numberTerm;
+    }
+
+    if (match.teamLeft?.name?.toLocaleLowerCase().includes(searchTermLower))
+      return true;
+    if (match.teamRight?.name?.toLocaleLowerCase().includes(searchTermLower))
+      return true;
+  });
+
+  const currentRoundNumber =
+    roundsData
+      .filter((node) =>
+        node.matches.some((match) => match.status !== "FINISHED")
+      )
+      .at(0)?.round ??
+    roundsData.at(-1)?.round ??
+    0;
 
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
       <TournamentTabs id={tournament.id!} activeTab="rounds" />
-      <HeaderRounds />
+      {tournament.matches?.length === 0 && (
+        <Button className="w-full" onClick={() => match.generate()}>
+          Gerar tabela de rodadas
+        </Button>
+      )}
+      {tournament.matches?.length !== 0 && (
+        <div className="flex justify-between items-center my-6">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-semibold">Rodadas</h2>
+            <Select
+              value={currentRound !== null ? `${currentRound}` : "-1"}
+              onValueChange={(value) => {
+                if (value === "-1") {
+                  setCurrentRound(null);
+                  return;
+                }
+                setCurrentRound(Number(value));
+              }}
+            >
+              <SelectTrigger className="w-32 md:w-50">
+                <SelectValue placeholder="Selecione a rodada" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={`-1`}>{"Todas"}</SelectItem>
+                {roundsData.map((roundNode) => (
+                  <SelectItem
+                    key={roundNode.round}
+                    value={`${roundNode.round}`}
+                  >
+                    <span className="hidden md:inline-flex md:mr-2">
+                      {"Rodada"}
+                    </span>
+                    {roundNode.round + 1}
+                    {roundNode.round === currentRoundNumber && (
+                      <span className="text-primary font-semibold">
+                        {" (Atual)"}
+                      </span>
+                    )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="items-center gap-2 flex">
+            <Input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-56"
+            />
+            {searchTerm ? (
+              <Trash2
+                className="cursor-pointer"
+                onClick={() => setSearchTerm("")}
+              />
+            ) : (
+              <Search />
+            )}
+          </div>{" "}
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {matches.map((match) => (
           <Card key={match.id} className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex justify-between items-center">
                 <span>Jogo #{match.matchNumber}</span>
-                {getStatusBadge(match.status)}
+                <StatusBadge status={match.status} />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -291,7 +317,6 @@ export default function RoundsPage() {
           </Card>
         ))}
       </div>
-
       {/* Finish Game Dialog */}
       <Dialog
         open={finishGameDialogOpen}
@@ -383,7 +408,6 @@ export default function RoundsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* WO/OO Dialog */}
       <Dialog open={woDialogOpen} onOpenChange={setWoDialogOpen}>
         <DialogContent className="max-w-md">
