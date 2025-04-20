@@ -30,62 +30,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Match } from "@/entities/match.entity";
+import { useTournament } from "@/hooks/use-tournament";
 import { AlertCircle, CheckCircle, Clock, Play, X } from "lucide-react";
 import { use, useState } from "react";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const roundsOld = {
+  "1": [
+    {
+      id: 1,
+      teamA: "Time A",
+      teamB: "Time B",
+      court: "Quadra 1",
+      status: "waiting",
+    },
+    {
+      id: 2,
+      teamA: "Time C",
+      teamB: "Time D",
+      court: "Quadra 2",
+      status: "in_progress",
+    },
+  ],
+  "2": [
+    {
+      id: 3,
+      teamA: "Time A",
+      teamB: "Time C",
+      court: "Quadra 1",
+      status: "finished",
+      score: [
+        [25, 20],
+        [25, 18],
+        [15, 25],
+        [25, 22],
+      ],
+    },
+    {
+      id: 4,
+      teamA: "Time B",
+      teamB: "Time D",
+      court: "Quadra 2",
+      status: "wo",
+      winner: "Time B",
+      reason: "Time D não compareceu",
+    },
+  ],
+};
 
 export default function RoundsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { tournament } = useTournament();
   const [currentRound, setCurrentRound] = useState("1");
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
   const [woDialogOpen, setWoDialogOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedGame, setSelectedGame] = useState<any>(null);
+
   const { id } = use(params);
   // Mock data for rounds
-  const rounds = {
-    "1": [
-      {
-        id: 1,
-        teamA: "Time A",
-        teamB: "Time B",
-        court: "Quadra 1",
-        status: "waiting",
-      },
-      {
-        id: 2,
-        teamA: "Time C",
-        teamB: "Time D",
-        court: "Quadra 2",
-        status: "in_progress",
-      },
-    ],
-    "2": [
-      {
-        id: 3,
-        teamA: "Time A",
-        teamB: "Time C",
-        court: "Quadra 1",
-        status: "finished",
-        score: [
-          [25, 20],
-          [25, 18],
-          [15, 25],
-          [25, 22],
-        ],
-      },
-      {
-        id: 4,
-        teamA: "Time B",
-        teamB: "Time D",
-        court: "Quadra 2",
-        status: "wo",
-        winner: "Time B",
-        reason: "Time D não compareceu",
-      },
-    ],
-  };
+  const rounds = {};
+
+  console.log("Tournament data:", tournament);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -119,27 +129,24 @@ export default function RoundsPage({
             <X className="h-3 w-3" /> WO
           </Badge>
         );
-      case "oo":
-        return (
-          <Badge variant="destructive" className="flex items-center gap-1">
-            <AlertCircle className="h-3 w-3" /> OO
-          </Badge>
-        );
       default:
         return <Badge variant="outline">Desconhecido</Badge>;
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleStartGame = (game: any) => {
     // Logic to start a game
     console.log("Starting game", game);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFinishGame = (game: any) => {
     setSelectedGame(game);
     setFinishGameDialogOpen(true);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWoOo = (game: any) => {
     setSelectedGame(game);
     setWoDialogOpen(true);
@@ -162,27 +169,43 @@ export default function RoundsPage({
     console.log("Starting next round");
   };
 
-  return (
-    <div className="container mx-auto py-6">
-      <TournamentTabs id={id} activeTab="rounds" />
+  const roundsData: Match[] = [];
 
+  function HeaderRounds() {
+    if (roundsData.length === 0)
+      return <Button className="w-full">Gerar tabela de rodadas</Button>;
+
+    return (
       <div className="flex justify-between items-center my-6">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-semibold">Rodadas</h2>
           <Select value={currentRound} onValueChange={setCurrentRound}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-20 md:w-50">
               <SelectValue placeholder="Selecione a rodada" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Rodada 1</SelectItem>
-              <SelectItem value="2">Rodada 2</SelectItem>
+              <SelectItem value="1">
+                <span
+                  className="
+            hidden md:inline-flex md:mr-2"
+                >
+                  {"Rodada "}
+                </span>
+                {1}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <Button onClick={handleStartNextRound}>Iniciar Próxima Rodada</Button>
       </div>
+    );
+  }
 
+  return (
+    <div className="container mx-auto py-6 flex flex-col gap-6">
+      <TournamentTabs id={id} activeTab="rounds" />
+      <HeaderRounds />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {rounds[currentRound as keyof typeof rounds]?.map((game) => (
           <Card key={game.id} className="overflow-hidden">
