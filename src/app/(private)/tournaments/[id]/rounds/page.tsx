@@ -61,26 +61,23 @@ export default function RoundsPage() {
     switch (status) {
       case MatchStatus.PENDING:
         return (
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Clock className="h-3 w-3" /> Aguardando
+          <Badge variant="default" className="flex items-center gap-1">
+            <Clock />
+            Aguardando
           </Badge>
         );
       case MatchStatus.IN_PROGRESS:
         return (
-          <Badge
-            variant="default"
-            className="flex items-center gap-1 bg-amber-500"
-          >
-            <Play className="h-3 w-3" /> Em andamento
+          <Badge variant="destructive" className="flex items-center gap-1">
+            <Play />
+            Em andamento
           </Badge>
         );
       case MatchStatus.FINISHED:
         return (
-          <Badge
-            variant="default"
-            className="flex items-center gap-1 bg-green-500"
-          >
-            <CheckCircle className="h-3 w-3" /> Finalizado
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <CheckCircle />
+            Finalizado
           </Badge>
         );
       default:
