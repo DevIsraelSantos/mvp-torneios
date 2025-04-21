@@ -31,9 +31,18 @@ import {
 } from "@/components/ui/select";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
-import { MatchStatus } from "@prisma/client";
+import { GameStatus, MatchStatus } from "@prisma/client";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { CheckCircle, Clock, Play, Search, Trash2 } from "lucide-react";
+import {
+  Check,
+  CheckCircle,
+  Clock,
+  Play,
+  Search,
+  Trash2,
+  Trophy,
+  X,
+} from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -197,6 +206,27 @@ export default function RoundsPage() {
     roundsData.at(-1)?.round ??
     0;
 
+  function HeaderScore({ match }: { match: Match }) {
+    if (match.status !== MatchStatus.FINISHED) return null;
+    return (
+      <Card className="py-0 gap-0">
+        <CardContent className="flex items-center gap-2 p-2">
+          {match.gameStatus === GameStatus.DOUBLE_WO ? (
+            <>
+              <span className="">DUPLO WO</span>
+            </>
+          ) : (
+            <>
+              <Trophy size={16} className="text-yellow-300" />
+              {match.winner?.name}{" "}
+              {match.gameStatus === GameStatus.WO && "(WO)"}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
       <TournamentTabs id={tournament.id!} activeTab="rounds" />
@@ -282,7 +312,7 @@ export default function RoundsPage() {
           <Card key={match.id} className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex justify-between items-center">
-                <div className="flex items-center justify-between gap-6">
+                <div className="flex items-center justify-start gap-6 flex-1">
                   <span>Jogo #{match.matchNumber}</span>
                   {match.status === MatchStatus.IN_PROGRESS && (
                     <Badge className="flex items-center gap-1">
@@ -290,7 +320,11 @@ export default function RoundsPage() {
                     </Badge>
                   )}
                 </div>
-                <StatusBadge status={match.status} />
+                <HeaderScore match={match} />
+
+                <div className="flex-1 flex justify-end">
+                  <StatusBadge status={match.status} />
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -515,12 +549,6 @@ export default function RoundsPage() {
                   onClick={() => handleFinishGame(match)}
                 >
                   Finalizar Jogo
-                </Button>
-              )}
-
-              {match.status === MatchStatus.FINISHED && (
-                <Button size="sm" variant="outline">
-                  Reabrir Jogo
                 </Button>
               )}
             </CardFooter>
