@@ -115,6 +115,12 @@ enum MatchStatus {
   FINISHED // finalizado
 }
 
+enum GameStatus {
+  PLAYED
+  WO
+  DOUBLE_WO
+}
+
 model Matches {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   teamLeft   Teams?  @relation(fields: [teamLeftId], references: [id], onDelete: Cascade, name: "MatchesTeamLeft")
@@ -126,6 +132,7 @@ model Matches {
   round       Int
   matchNumber Int
   status      MatchStatus @default(PENDING)
+  gameStatus  GameStatus?
 
   space    Spaces? @relation(fields: [spacesId], references: [id], onDelete: Cascade)
   spacesId String? @db.ObjectId

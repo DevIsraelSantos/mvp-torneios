@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { Team } from "@/entities/team.entity";
 import { prisma } from "@/prisma";
-import { MatchStatus, TournamentCategories } from "@prisma/client";
+import { GameStatus, MatchStatus, TournamentCategories } from "@prisma/client";
 
 type Schedule = {
   teamLeft?: string;
@@ -202,4 +202,52 @@ export async function startMatchAction({
     success: true,
     message: `🟢 Jogo #${match.matchNumber} iniciado em "${match.space?.name}" `,
   };
+}
+
+export async function finishMatchWOAction({
+  matchId,
+  winnerId,
+}: {
+  matchId?: string;
+  winnerId: string | null;
+}): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    await prisma.matches.update({
+      where: {
+        id: matchId,
+        status: MatchStatus.PENDING,
+      },
+      data: {
+        status: MatchStatus.FINISHED,
+        gameStatus: winnerId ? GameStatus.WO : GameStatus.DOUBLE_WO,
+        winner: winnerId
+          ? {
+              connect: {
+                id: winnerId,
+              },
+            }
+          : undefined,
+      },
+    });
+
+    return {
+      success: true,
+      message: "🟡 Jogo foi finalizado com WO",
+    };
+  } catch {
+    return {
+      success: false,
+      message: "🔴 Erro ao finalizar o jogo com WO",
+    };
+  }
 }

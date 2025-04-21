@@ -1,8 +1,7 @@
 "use client";
 
-import { startMatchAction } from "@/actions/match-actions";
+import { finishMatchWOAction, startMatchAction } from "@/actions/match-actions";
 import { TournamentTabs } from "@/components/tournament-tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,19 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
 import { MatchStatus } from "@prisma/client";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Play,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { CheckCircle, Clock, Play, Search, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -66,6 +57,7 @@ export default function RoundsPage() {
   const [currentSpaceSelected, setCurrentSpaceSelected] = useState<
     string | null
   >(null);
+  const [woOption, setWoOption] = useState<string | null>(null);
 
   const StatusBadge = ({ status }: { status?: MatchStatus }) => {
     switch (status) {
@@ -131,10 +123,27 @@ export default function RoundsPage() {
     setFinishGameDialogOpen(false);
   };
 
-  const handleSubmitWoOo = () => {
-    // Logic to submit WO/OO
-    console.log("Submitting WO/OO for game", selectedGame);
-    setWoDialogOpen(false);
+  const handleSubmitWo = ({
+    matchId,
+    winner,
+  }: {
+    matchId: string;
+    winner: string;
+  }) => {
+    startTransition(async () => {
+      const toastLoading = toast.loading("Finalizando jogo com WO...");
+      const result = await finishMatchWOAction({
+        matchId,
+        winnerId: winner === "double" ? null : winner,
+      });
+      toast.dismiss(toastLoading);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+      toast.success(result.message);
+      await resetTournament(tournament.id!);
+    });
   };
 
   const roundsData: Array<Round> =
@@ -188,6 +197,8 @@ export default function RoundsPage() {
       .at(0)?.round ??
     roundsData.at(-1)?.round ??
     0;
+
+  console.log({ woOption });
 
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
@@ -404,13 +415,100 @@ export default function RoundsPage() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleWoOo(match)}
+
+                  <Dialog
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setWoOption(null);
+                      }
+                    }}
                   >
-                    Não Jogado
-                  </Button>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleWoOo(match)}
+                      >
+                        Não Jogado
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>WO</DialogTitle>
+                        <DialogDescription>
+                          Selecione o time vencedor
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="space-y-4 py-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <Card className="flex-1">
+                            <CardContent className="p-2">
+                              <div className="text-center font-semibold">
+                                {match.teamLeft?.name}
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <div className="text-center px-4">VS</div>
+                          <Card className="flex-1">
+                            <CardContent className="p-2">
+                              <div className="text-center font-semibold">
+                                {match.teamRight?.name}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="winner">Time vencedor</Label>
+                          <Select
+                            defaultValue="null"
+                            onValueChange={(value) => {
+                              setWoOption(value);
+                            }}
+                          >
+                            <SelectTrigger id="winner">
+                              <SelectValue placeholder="Selecione o time vencedor" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={"null"} disabled>
+                                {"Selecionar"}
+                              </SelectItem>
+                              <SelectItem value={match.teamLeft!.id!}>
+                                {match.teamLeft?.name}
+                              </SelectItem>
+                              <SelectItem value={match.teamRight!.id!}>
+                                {match.teamRight?.name}
+                              </SelectItem>
+                              <SelectItem value={"double"}>
+                                {"DUPLO WO"}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <DialogFooter>
+                        <Button
+                          variant="destructive"
+                          disabled={
+                            !(
+                              woOption === "double" ||
+                              woOption === match.teamLeft?.id ||
+                              woOption === match.teamRight?.id
+                            )
+                          }
+                          onClick={() => {
+                            handleSubmitWo({
+                              matchId: match.id!,
+                              winner: woOption!,
+                            });
+                          }}
+                        >
+                          Confirmar
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </>
               )}
 
@@ -521,87 +619,6 @@ export default function RoundsPage() {
               Cancelar
             </Button>
             <Button onClick={handleSubmitScore}>Confirmar Resultado</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {/* WO/OO Dialog */}
-      <Dialog open={woDialogOpen} onOpenChange={setWoDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Marcar como WO ou OO</DialogTitle>
-            <DialogDescription>
-              Selecione o motivo pelo qual o jogo não foi realizado
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="text-center flex-1">
-                <div className="font-semibold">{selectedGame?.teamA}</div>
-              </div>
-              <div className="text-center px-4">VS</div>
-              <div className="text-center flex-1">
-                <div className="font-semibold">{selectedGame?.teamB}</div>
-              </div>
-            </div>
-
-            <RadioGroup defaultValue="wo">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="wo" id="wo" />
-                <Label htmlFor="wo">WO (Walkover)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="oo" id="oo" />
-                <Label htmlFor="oo">OO (Ocorrência Organizacional)</Label>
-              </div>
-            </RadioGroup>
-
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>O que é WO e OO?</AlertTitle>
-              <AlertDescription>
-                <p>
-                  <strong>WO (Walkover)</strong>: Quando um time não comparece
-                  ao jogo.
-                </p>
-                <p>
-                  <strong>OO (Ocorrência Organizacional)</strong>: Quando um
-                  jogo não ocorre por motivos organizacionais.
-                </p>
-              </AlertDescription>
-            </Alert>
-
-            <div className="space-y-2">
-              <Label htmlFor="reason">Motivo</Label>
-              <Textarea
-                id="reason"
-                placeholder="Descreva o motivo pelo qual o jogo não foi realizado"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="winner">Time vencedor (apenas para WO)</Label>
-              <Select>
-                <SelectTrigger id="winner">
-                  <SelectValue placeholder="Selecione o time vencedor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={selectedGame?.teamA}>
-                    {selectedGame?.teamA}
-                  </SelectItem>
-                  <SelectItem value={selectedGame?.teamB}>
-                    {selectedGame?.teamB}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setWoDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmitWoOo}>Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
