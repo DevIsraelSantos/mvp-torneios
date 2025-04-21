@@ -29,20 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
 import { GameStatus, MatchStatus } from "@prisma/client";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import {
-  Check,
-  CheckCircle,
-  Clock,
-  Play,
-  Search,
-  Trash2,
-  Trophy,
-  X,
-} from "lucide-react";
+import { CheckCircle, Clock, Play, Search, Trash2, Trophy } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -55,14 +47,9 @@ export default function RoundsPage() {
   const { tournament, match, getSpaces, resetTournament } = useTournament();
   const [currentRound, setCurrentRound] = useState<number | null>(null);
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
-  const [woDialogOpen, setWoDialogOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedGame, setSelectedGame] = useState<any>(null);
+  const [selectedGame, setSelectedGame] = useState<Match | null>();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [, startTransition] = useTransition();
-  const [currentMatchIdOpen, setCurrentMatchIdOpen] = useState<string | null>(
-    null
-  );
   const [currentSpaceSelected, setCurrentSpaceSelected] = useState<
     string | null
   >(null);
@@ -114,16 +101,9 @@ export default function RoundsPage() {
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFinishGame = (game: any) => {
-    setSelectedGame(game);
+  const handleFinishGame = (match: Match) => {
+    setSelectedGame(match);
     setFinishGameDialogOpen(true);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleWoOo = (game: any) => {
-    setSelectedGame(game);
-    setWoDialogOpen(true);
   };
 
   const handleSubmitScore = () => {
@@ -358,13 +338,6 @@ export default function RoundsPage() {
                 </div>
               )}
 
-              {/* {match.status === "wo" && (
-                <div className="mt-2 text-center text-sm">
-                  <span className="font-medium">Vencedor: {match.winner}</span>
-                  <p className="text-muted-foreground">{match.reason}</p>
-                </div>
-              )} */}
-
               <div className="mt-4 text-sm text-muted-foreground text-center">
                 {match.space?.name}
               </div>
@@ -454,11 +427,7 @@ export default function RoundsPage() {
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleWoOo(match)}
-                      >
+                      <Button size="sm" variant="outline">
                         Não Jogado
                       </Button>
                     </DialogTrigger>
@@ -558,11 +527,18 @@ export default function RoundsPage() {
       {/* Finish Game Dialog */}
       <Dialog
         open={finishGameDialogOpen}
-        onOpenChange={setFinishGameDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedGame(null);
+            setFinishGameDialogOpen(false);
+          }
+        }}
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Finalizar Jogo</DialogTitle>
+            <DialogTitle>
+              Finalizar Jogo #{selectedGame?.matchNumber}
+            </DialogTitle>
             <DialogDescription>
               Registre o placar final do jogo
             </DialogDescription>
@@ -570,69 +546,57 @@ export default function RoundsPage() {
 
           <div className="space-y-4 py-4">
             <div className="flex justify-between items-center mb-4">
-              <div className="text-center flex-1">
-                <div className="font-semibold">{selectedGame?.teamA}</div>
-              </div>
+              <Card className="flex-1">
+                <CardContent className="p-2">
+                  <div className="text-center font-semibold">
+                    {selectedGame?.teamLeft?.name}
+                  </div>
+                </CardContent>
+              </Card>
               <div className="text-center px-4">VS</div>
-              <div className="text-center flex-1">
-                <div className="font-semibold">{selectedGame?.teamB}</div>
-              </div>
+              <Card className="flex-1">
+                <CardContent className="p-2">
+                  <div className="text-center font-semibold">
+                    {selectedGame?.teamRight?.name}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-
-            {[1, 2, 3].map((set) => (
-              <div key={set} className="grid grid-cols-3 gap-4 items-center">
-                <div className="space-y-2">
-                  <Label htmlFor={`set-${set}-team-a`}>Set {set}</Label>
-                  <Input
-                    id={`set-${set}-team-a`}
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                  />
+            {Array.from({ length: Number(tournament.numberOfSets) }).map(
+              (s, set) => (
+                <div key={set} className="grid grid-cols-3 gap-4 items-center">
+                  <div className="space-y-2">
+                    <Label htmlFor={`set-${set}-team-left`}>Set {set}</Label>
+                    <Input
+                      id={`set-${set}-team-left`}
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="flex justify-center items-center pt-6">
+                    <span>x</span>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor={`set-${set}-team-right`}
+                      className="sr-only"
+                    >
+                      Set {set} Time B
+                    </Label>
+                    <Input
+                      id={`set-${set}-team-right`}
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                    />
+                  </div>
+                  {set < Number(tournament.numberOfSets) - 1 && (
+                    <Separator className="col-span-full" />
+                  )}
                 </div>
-                <div className="flex justify-center items-center pt-6">
-                  <span>x</span>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`set-${set}-team-b`} className="sr-only">
-                    Set {set} Time B
-                  </Label>
-                  <Input
-                    id={`set-${set}-team-b`}
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            ))}
-
-            {/* Tie-break set (optional) */}
-            <div className="grid grid-cols-3 gap-4 items-center">
-              <div className="space-y-2">
-                <Label htmlFor="set-4-team-a">Set 4 (Tie-break)</Label>
-                <Input
-                  id="set-4-team-a"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                />
-              </div>
-              <div className="flex justify-center items-center pt-6">
-                <span>x</span>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="set-4-team-b" className="sr-only">
-                  Set 4 Time B
-                </Label>
-                <Input
-                  id="set-4-team-b"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                />
-              </div>
-            </div>
+              )
+            )}
           </div>
 
           <DialogFooter>
