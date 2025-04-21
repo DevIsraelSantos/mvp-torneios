@@ -6,8 +6,11 @@ import {
   deleteTeamAction,
   getTournamentByIdAction,
 } from "@/actions/tournament-actions";
+import { Match } from "@/entities/match.entity";
+import { Space } from "@/entities/space.entity";
 import { Team } from "@/entities/team.entity";
 import { Tournament } from "@/entities/tournament.entity";
+import { MatchStatus } from "@prisma/client";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +27,11 @@ type TournamentContextType = {
   match: {
     generate: () => void;
   };
+  getSpaces: () => Array<
+    Space & {
+      match?: Match;
+    }
+  >;
 };
 
 const TournamentContext = createContext<TournamentContextType | undefined>(
@@ -132,6 +140,31 @@ export const TournamentProvider = ({
     toast.success(`${actionResult.message}`);
     resetTournament(tournament.id!);
   };
+
+  const getSpaces = (): Array<
+    Space & {
+      match?: Match;
+    }
+  > => {
+    const matchesInProgress: Array<Match> =
+      tournament?.matches?.filter(
+        (match) => match.status === MatchStatus.IN_PROGRESS
+      ) ?? [];
+
+    return tournament.spaces.map((space) => {
+      if (matchesInProgress.length === 0) return space;
+
+      const match = matchesInProgress.find(
+        (match) => match.space?.id === space.id
+      );
+
+      return {
+        ...space,
+        match,
+      };
+    });
+  };
+
   return (
     <TournamentContext.Provider
       value={{
@@ -147,6 +180,7 @@ export const TournamentProvider = ({
         match: {
           generate: generateMatchTable,
         },
+        getSpaces: getSpaces,
       }}
     >
       {children}

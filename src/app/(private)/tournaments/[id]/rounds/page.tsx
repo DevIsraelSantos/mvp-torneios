@@ -1,5 +1,6 @@
 "use client";
 
+import { startMatchAction } from "@/actions/match-actions";
 import { TournamentTabs } from "@/components/tournament-tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Match } from "@/entities/match.entity";
 import { useTournament } from "@/hooks/use-tournament";
 import { MatchStatus } from "@prisma/client";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 import {
   AlertCircle,
   CheckCircle,
@@ -41,7 +43,8 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 interface Round {
   round: number;
@@ -49,13 +52,20 @@ interface Round {
 }
 
 export default function RoundsPage() {
-  const { tournament, match } = useTournament();
+  const { tournament, match, getSpaces, resetTournament } = useTournament();
   const [currentRound, setCurrentRound] = useState<number | null>(null);
   const [finishGameDialogOpen, setFinishGameDialogOpen] = useState(false);
   const [woDialogOpen, setWoDialogOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedGame, setSelectedGame] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [, startTransition] = useTransition();
+  const [currentMatchIdOpen, setCurrentMatchIdOpen] = useState<string | null>(
+    null
+  );
+  const [currentSpaceSelected, setCurrentSpaceSelected] = useState<
+    string | null
+  >(null);
 
   const StatusBadge = ({ status }: { status?: MatchStatus }) => {
     switch (status) {
@@ -85,10 +95,21 @@ export default function RoundsPage() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleStartGame = (game: any) => {
-    // Logic to start a game
-    console.log("Starting game", game);
+  const handleStartGame = (match: Match) => {
+    startTransition(async () => {
+      const toastLoading = toast.loading("Iniciando jogo...");
+      const result = await startMatchAction({
+        matchId: match.id,
+        spaceId: currentSpaceSelected!,
+      });
+      toast.dismiss(toastLoading);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+      resetTournament(tournament.id!);
+      toast.success(result.message);
+    });
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -301,9 +322,80 @@ export default function RoundsPage() {
             <CardFooter className="flex justify-center gap-2 pt-0">
               {match.status === MatchStatus.PENDING && (
                 <>
-                  <Button size="sm" onClick={() => handleStartGame(match)}>
-                    Iniciar Jogo
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">Iniciar Jogo</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Jogo #{match.matchNumber}</DialogTitle>
+                      </DialogHeader>
+
+                      <div className="space-y-4 py-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <Card className="flex-1">
+                            <CardContent className="p-2">
+                              <div className="text-center font-semibold">
+                                {match.teamLeft?.name}
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <div className="text-center px-4">VS</div>
+                          <Card className="flex-1">
+                            <CardContent className="p-2">
+                              <div className="text-center font-semibold">
+                                {match.teamRight?.name}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                          <Label htmlFor="reason">
+                            Selecione o local do jogo
+                          </Label>
+                          <RadioGroup defaultValue={currentSpaceSelected ?? ""}>
+                            {getSpaces().map((space) => (
+                              <div
+                                key={space.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <RadioGroupItem
+                                  onClick={(radio) => {
+                                    setCurrentSpaceSelected(
+                                      radio.currentTarget.value
+                                    );
+                                    console.log(radio.currentTarget.value);
+                                  }}
+                                  value={space.id!}
+                                  id={space.id}
+                                  disabled={!!space.match}
+                                />
+                                <Label htmlFor={space.id}>
+                                  {space.name}
+                                  {space.match && (
+                                    <Badge variant={"destructive"}>
+                                      JOGO #{space.match.matchNumber}
+                                    </Badge>
+                                  )}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
+                      </div>
+
+                      <DialogFooter>
+                        <Button
+                          size="sm"
+                          onClick={() => handleStartGame(match)}
+                          disabled={!currentSpaceSelected}
+                        >
+                          Iniciar Jogo
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     size="sm"
                     variant="outline"

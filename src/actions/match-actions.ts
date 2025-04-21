@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { Team } from "@/entities/team.entity";
 import { prisma } from "@/prisma";
-import { TournamentCategories } from "@prisma/client";
+import { MatchStatus, TournamentCategories } from "@prisma/client";
 
 type Schedule = {
   teamLeft?: string;
@@ -136,4 +136,70 @@ export async function createMatchTable({
       message: "🔴 Erro ao criar tabelas de jogos.",
     };
   }
+}
+
+export async function startMatchAction({
+  matchId,
+  spaceId,
+}: {
+  matchId?: string;
+  spaceId?: string;
+}): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  const space = await prisma.spaces.findUnique({
+    where: {
+      id: spaceId,
+      matches: {
+        none: {
+          status: MatchStatus.IN_PROGRESS,
+        },
+      },
+    },
+  });
+
+  if (!space) {
+    return {
+      success: false,
+      message: "🔴 Erro ao iniciar o jogo. Verifique os jogos em andamento",
+    };
+  }
+
+  const match = await prisma.matches.update({
+    where: {
+      id: matchId,
+      status: MatchStatus.PENDING,
+    },
+    data: {
+      status: MatchStatus.IN_PROGRESS,
+      space: {
+        connect: {
+          id: spaceId,
+        },
+      },
+    },
+    include: {
+      space: true,
+    },
+  });
+
+  if (!match || match.status !== MatchStatus.IN_PROGRESS) {
+    return {
+      success: false,
+      message: "🔴 Erro ao iniciar o jogo. Verifique os jogos em andamento",
+    };
+  }
+
+  return {
+    success: true,
+    message: `🟢 Jogo #${match.matchNumber} iniciado em "${match.space?.name}" `,
+  };
 }
