@@ -155,7 +155,7 @@ export default function RoundsPage() {
     const left = match.teamLeft?.name?.toLocaleLowerCase();
     const right = match.teamRight?.name?.toLocaleLowerCase();
 
-    return left?.includes(searchTermLower) || right.includes(searchTermLower);
+    return left?.includes(searchTermLower) || right?.includes(searchTermLower);
   });
 
   const currentRoundNumber =
