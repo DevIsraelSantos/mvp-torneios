@@ -96,6 +96,7 @@ export default function RoundsPage() {
   };
 
   const handleStartGame = (match: Match) => {
+    setCurrentSpaceSelected(null);
     startTransition(async () => {
       const toastLoading = toast.loading("Iniciando jogo...");
       const result = await startMatchAction({
@@ -273,7 +274,14 @@ export default function RoundsPage() {
           <Card key={match.id} className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex justify-between items-center">
-                <span>Jogo #{match.matchNumber}</span>
+                <div className="flex items-center justify-between gap-6">
+                  <span>Jogo #{match.matchNumber}</span>
+                  {match.status === MatchStatus.IN_PROGRESS && (
+                    <Badge className="flex items-center gap-1">
+                      {match.space?.name}
+                    </Badge>
+                  )}
+                </div>
                 <StatusBadge status={match.status} />
               </CardTitle>
             </CardHeader>
@@ -407,7 +415,11 @@ export default function RoundsPage() {
               )}
 
               {match.status === MatchStatus.IN_PROGRESS && (
-                <Button size="sm" onClick={() => handleFinishGame(match)}>
+                <Button
+                  size="sm"
+                  variant={"destructive"}
+                  onClick={() => handleFinishGame(match)}
+                >
                   Finalizar Jogo
                 </Button>
               )}
