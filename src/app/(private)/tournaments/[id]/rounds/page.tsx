@@ -119,7 +119,6 @@ export default function RoundsPage() {
 
   const handleSubmitScore = () => {
     // Logic to submit score
-    console.log("Submitting score for game", selectedGame);
     setFinishGameDialogOpen(false);
   };
 
@@ -197,8 +196,6 @@ export default function RoundsPage() {
       .at(0)?.round ??
     roundsData.at(-1)?.round ??
     0;
-
-  console.log({ woOption });
 
   return (
     <div className="container mx-auto py-6 flex flex-col gap-6">
@@ -384,7 +381,6 @@ export default function RoundsPage() {
                                     setCurrentSpaceSelected(
                                       radio.currentTarget.value
                                     );
-                                    console.log(radio.currentTarget.value);
                                   }}
                                   value={space.id!}
                                   id={space.id}
